@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Ops Hub</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ECEEEC; --surface:#F8F9F8; --ink:#1E2629; --muted:#5F6B6F; --line:#D2D7D5;
+  --accent:#2E5E63; --accent-ink:#FFFFFF; --hover:#E3E7E5; --danger:#9B3B2E;
+  --up:#2F8F5B; --down:#C2412D; --star:#C99A2E;
+  --font:"Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#151A1C; --surface:#1D2427; --ink:#E6EAE9; --muted:#9AA5A8; --line:#2E383B;
+    --accent:#7FB3B7; --accent-ink:#0F1416; --hover:#252E31; --danger:#E08A7C;
+    --up:#5BBF86; --down:#E8735F; --star:#E2B84F;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151A1C; --surface:#1D2427; --ink:#E6EAE9; --muted:#9AA5A8; --line:#2E383B;
+  --accent:#7FB3B7; --accent-ink:#0F1416; --hover:#252E31; --danger:#E08A7C;
+  --up:#5BBF86; --down:#E8735F; --star:#E2B84F;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 64px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Buttons */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 14px;cursor:pointer;font-weight:500;font-size:.92rem}
+.btn:hover{background:var(--hover)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--danger)}
+
+/* Gate screens (setup / login) */
+.gate{min-height:100vh;display:grid;place-items:center;padding:24px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px;width:min(380px,100%)}
+.card h1{margin:0 0 6px}
+.card p{color:var(--muted);margin:0 0 18px;font-size:.95rem}
+.card code{background:var(--bg);padding:1px 6px;border-radius:4px;font-size:.88em}
+.pin{width:100%;font-size:1.4rem;letter-spacing:.3em;text-align:center;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);margin-bottom:10px}
+.pin:focus{border-color:var(--accent);outline:none}
+.card .btn{width:100%}
+.msg{color:var(--danger);font-size:.88rem;min-height:1.3em;margin:0 0 10px}
+
+/* Header */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:1.75rem;font-weight:700;letter-spacing:-.02em;margin:0;line-height:1.1}
+.sub{color:var(--muted);margin:6px 0 0;font-size:.95rem}
+.sub .bad{color:var(--down);font-weight:600}
+.actions{display:flex;gap:8px;align-items:center}
+
+details.menu{position:relative}
+details.menu>summary{list-style:none}
+details.menu>summary::-webkit-details-marker{display:none}
+.menu-pop{position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px;min-width:220px;z-index:5;box-shadow:0 8px 24px rgba(20,30,32,.12)}
+.menu-pop button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 10px;border-radius:6px;cursor:pointer;font-size:.92rem}
+.menu-pop button:hover{background:var(--hover)}
+.menu-pop hr{border:0;border-top:1px solid var(--line);margin:6px 0}
+
+/* Search — the centerpiece */
+.search{position:relative;margin-bottom:16px}
+.search input{width:100%;font-size:1.35rem;font-weight:500;padding:18px 64px 18px 56px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);outline:none}
+.search input:focus{border-color:var(--accent)}
+.search input::placeholder{color:var(--muted);font-weight:400}
+.search .mag{position:absolute;left:20px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search kbd{position:absolute;right:18px;top:50%;transform:translateY(-50%);border:1px solid var(--line);border-radius:6px;padding:1px 8px;font-family:var(--font);font-size:.85rem;color:var(--muted);background:var(--bg)}
+.hint{color:var(--muted);font-size:.85rem;margin:-6px 0 18px 4px}
+
+/* Frequent strip */
+.quick{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.quick-label{color:var(--muted);font-size:.88rem;margin-right:4px}
+.qlink{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);text-decoration:none;color:inherit;font-size:.9rem;font-weight:500}
+.qlink:hover{background:var(--hover)}
+
+/* Brand filter */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 14px;cursor:pointer;font-size:.9rem}
+.chip:hover{background:var(--hover)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--c,var(--muted));flex:none}
+
+/* Groups */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr));gap:20px;align-items:start}
+.group{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.g-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);border-top:3px solid var(--c)}
+.g-head h2{font-size:1.02rem;font-weight:600;margin:0;flex:1}
+.g-head .star-ico{width:16px;height:16px;fill:var(--star);stroke:var(--star)}
+.group.fav{--c:var(--star)}
+.count{color:var(--muted);font-size:.85rem}
+.rows{list-style:none;margin:0;padding:4px 0}
+.row+.row{border-top:1px solid var(--line)}
+.line{display:flex;align-items:center}
+.line:hover{background:var(--hover)}
+.row-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:12px 6px 12px 16px;color:inherit;text-decoration:none}
+.ico{position:relative;width:34px;height:34px;border-radius:8px;display:grid;place-items:center;background:var(--bg);color:var(--muted);flex:none}
+.ico svg{width:18px;height:18px}
+.st{position:absolute;right:-3px;bottom:-3px;width:11px;height:11px;border-radius:50%;border:2px solid var(--surface)}
+.st.up{background:var(--up)}
+.st.down{background:var(--down)}
+.st.unk{background:var(--line)}
+.txt{min-width:0;flex:1 1 60%}
+.t{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.d{display:block;color:var(--muted);font-size:.87rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.host{color:var(--muted);font-size:.8rem;white-space:nowrap;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.acts{display:flex;gap:2px;padding-right:8px}
+.icon-btn{border:0;background:none;width:32px;height:32px;border-radius:6px;display:grid;place-items:center;cursor:pointer;color:var(--muted);opacity:.6}
+.line:hover .icon-btn,.line:focus-within .icon-btn{opacity:1}
+.icon-btn:hover{background:var(--bg);color:var(--ink)}
+.icon-btn svg{width:16px;height:16px}
+.icon-btn[aria-pressed="true"]{opacity:1;color:var(--star)}
+.icon-btn[aria-pressed="true"] svg{fill:var(--star)}
+.icon-btn[aria-expanded="true"]{opacity:1;color:var(--ink);background:var(--bg)}
+.row.first .row-main{box-shadow:inset 3px 0 0 var(--accent)}
+.notes{margin:0;padding:2px 16px 14px 62px;color:var(--muted);font-size:.88rem;white-space:pre-wrap;overflow-wrap:anywhere}
+
+.empty{text-align:center;padding:56px 16px;color:var(--muted);border:1.5px dashed var(--line);border-radius:12px}
+.empty p{margin:0 0 14px}
+.foot{margin-top:36px;color:var(--muted);font-size:.85rem}
+
+/* Dialog */
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:0;width:min(560px,calc(100% - 32px))}
+dialog::backdrop{background:rgba(15,22,24,.45)}
+.dlg{padding:22px 22px 18px}
+.dlg h3{margin:0 0 16px;font-size:1.15rem}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.88rem;font-weight:500;margin-bottom:5px}
+.field .opt{color:var(--muted);font-weight:400}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--bg)}
+.field textarea{resize:vertical;min-height:64px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.err{color:var(--danger);font-size:.85rem;min-height:1.2em;margin:0 0 8px}
+.dlg-foot{display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.dlg-foot .spacer{flex:1}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+
+@media (max-width:600px){
+  .wrap{padding:24px 16px 48px}
+  .search input{font-size:1.1rem;padding:15px 16px 15px 48px}
+  .search kbd,.hint{display:none}
+  .search .mag{left:16px}
+  .host{display:none}
+  .icon-btn{opacity:1;width:30px}
+  .acts{padding-right:4px}
+  .two{grid-template-columns:1fr}
+  .notes{padding-left:16px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- Belum dikonfigurasi -->
+<section class="gate" id="scrSetup" hidden>
+  <div class="card">
+    <h1>Ops Hub</h1>
+    <p>Alamat server belum diisi. Buka <code>index.html</code>, isi <code>API_URL</code> dengan URL Web App Apps Script (yang berakhiran <code>/exec</code>), lalu deploy ulang.</p>
+  </div>
+</section>
+
+<!-- Login PIN -->
+<section class="gate" id="scrLogin" hidden>
+  <form class="card" id="loginForm" novalidate>
+    <h1>Ops Hub</h1>
+    <p>Masukkan PIN untuk membuka dashboard.</p>
+    <label for="pin" class="sr">PIN</label>
+    <input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="20" required>
+    <p class="msg" id="loginMsg" role="alert"></p>
+    <button class="btn primary" type="submit" id="loginBtn">Masuk</button>
+  </form>
+</section>
+
+<!-- Dashboard -->
+<div class="wrap" id="scrApp" hidden>
+  <header class="top">
+    <div>
+      <h1>Ops Hub</h1>
+      <p class="sub" id="summary">Memuat link…</p>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="addBtn" type="button">Tambah link</button>
+      <details class="menu" id="menu">
+        <summary class="btn" role="button">Kelola</summary>
+        <div class="menu-pop">
+          <button type="button" id="statusBtn">Cek status app sekarang</button>
+          <button type="button" id="reloadBtn">Muat ulang daftar link</button>
+          <button type="button" id="exportBtn">Ekspor backup JSON</button>
+          <hr>
+          <button type="button" id="themeBtn">Ganti tema terang/gelap</button>
+          <button type="button" id="logoutBtn">Keluar</button>
+        </div>
+      </details>
+    </div>
+  </header>
+
+  <div class="search">
+    <svg class="mag" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Cari app, backend, atau brand…" autocomplete="off" aria-label="Cari link">
+    <kbd>/</kbd>
+  </div>
+  <p class="hint">Tekan Enter untuk membuka hasil teratas.</p>
+
+  <div class="quick" id="quick" hidden></div>
+  <div class="chips" id="chips" role="group" aria-label="Filter brand"></div>
+  <main id="list"></main>
+
+  <p class="foot">Data tersimpan di spreadsheet OPS_HUB dan sama di semua device. Sesi login berlaku 6 jam sejak terakhir dipakai.</p>
+</div>
+
+<dialog id="dlg">
+  <form class="dlg" id="form" novalidate>
+    <h3 id="dlgTitle">Tambah link</h3>
+    <div class="field"><label for="fTitle">Judul</label><input id="fTitle" required maxlength="80"></div>
+    <div class="field"><label for="fUrl">URL</label><input id="fUrl" type="url" required placeholder="https://"></div>
+    <div class="field"><label for="fDesc">Deskripsi <span class="opt">(opsional)</span></label><input id="fDesc" maxlength="160"></div>
+    <div class="two">
+      <div class="field"><label for="fBrand">Brand</label><input id="fBrand" list="brandList" placeholder="Pilih atau ketik baru" maxlength="60"><datalist id="brandList"></datalist></div>
+      <div class="field"><label for="fType">Jenis</label>
+        <select id="fType">
+          <option value="app">Web App</option>
+          <option value="sheet">Spreadsheet / Backend</option>
+          <option value="tool">Apps Script / Tool</option>
+          <option value="other">Lainnya</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label for="fScript">Link editor Apps Script <span class="opt">(opsional)</span></label><input id="fScript" type="url" placeholder="https://script.google.com/home/projects/…/edit"></div>
+    <div class="field"><label for="fNotes">Catatan <span class="opt">(opsional, misal langkah deploy)</span></label><textarea id="fNotes" maxlength="1000"></textarea></div>
+    <p class="err" id="err" role="alert"></p>
+    <div class="dlg-foot">
+      <button type="button" class="btn danger" id="delBtn" hidden>Hapus</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="cancelBtn">Batal</button>
+      <button type="submit" class="btn primary" id="saveBtn">Simpan</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ====== KONFIGURASI — isi dengan URL Web App Apps Script (berakhiran /exec) ====== */
+const API_URL = 'PASTE_URL_WEB_APP_APPS_SCRIPT_DI_SINI';
+
+/* Warna penanda per brand (netral, hanya titik kecil) */
+const BRAND_COLORS = {
+  'SOYA SUKA':'#B97B51', 'SOYA SUKA Central Kitchen':'#8C6239',
+  'MONTY&Co.':'#4F6D7A', 'No. 25 Minced Meat Noodles':'#A0523D'
+};
+const FALLBACK_COLORS = ['#5E7D5B','#7A5C7E','#6B7A3F','#3F6E8C','#8A6F4E','#6C6C78'];
+
+const SV = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+const ICONS = {
+  app:`<svg ${SV}><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>`,
+  sheet:`<svg ${SV}><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>`,
+  tool:`<svg ${SV}><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg>`,
+  other:`<svg ${SV}><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>`,
+  star:`<svg ${SV}><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9Z"/></svg>`,
+  notes:`<svg ${SV}><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>`,
+  script:`<svg ${SV}><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 10 3 2-3 2M12 15h5"/></svg>`,
+  copy:`<svg ${SV}><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>`,
+  edit:`<svg ${SV}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`
+};
+const TYPE_LABEL = {app:'Web App', sheet:'Spreadsheet', tool:'Apps Script', other:'Lainnya'};
+const CHECKED = t => t === 'app' || t === 'tool';
+
+/* ====== Local storage helpers ====== */
+const LS = {token:'opshub.token', cache:'opshub.cache', theme:'opshub.theme'};
+const lsGet = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
+const lsSet = (k,v) => { try{ localStorage.setItem(k,v); }catch(e){} };
+const lsDel = k => { try{ localStorage.removeItem(k); }catch(e){} };
+
+/* ====== State ====== */
+let token = lsGet(LS.token);
+let links = [];
+let status = {}, statusAt = '';
+let visible = [];
+let colors = {};
+const state = {q:'', brand:'all', expanded:new Set()};
+
+/* ====== Helpers ====== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeUrl = u => /^https?:\/\//i.test(String(u||'')) ? u : '#';
+function hostLabel(u){
+  try{
+    const h = new URL(u).hostname;
+    if(h === 'docs.google.com') return 'Google Sheets';
+    if(h === 'script.google.com') return 'Apps Script';
+    return h.replace(/^www\./,'');
+  }catch(e){ return ''; }
+}
+let toastTimer;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function show(id){
+  ['scrSetup','scrLogin','scrApp'].forEach(s => { $('#'+s).hidden = s !== id; });
+}
+function cacheLinks(){ lsSet(LS.cache, JSON.stringify(links)); }
+
+/* ====== API ====== */
+async function api(action, payload = {}){
+  let res;
+  try{
+    res = await fetch(API_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action, token, ...payload})
+    });
+  }catch(e){ throw new Error('Tidak bisa terhubung ke server. Cek koneksi internet.'); }
+  let data;
+  try{ data = await res.json(); }
+  catch(e){ throw new Error('Respons server tidak valid. Pastikan Web App di-deploy dengan akses Anyone.'); }
+  if(!data.ok){
+    const err = new Error(data.message || data.error);
+    if(data.error === 'AUTH'){ err.auth = true; signOut('Sesi habis. Masukkan PIN lagi.'); }
+    throw err;
+  }
+  return data;
+}
+
+function trackOpen(id){
+  const l = links.find(x => x.id === id);
+  if(l){ l.open_count = (l.open_count || 0) + 1; cacheLinks(); }
+  const body = JSON.stringify({action:'open', token, id});
+  try{
+    if(navigator.sendBeacon && navigator.sendBeacon(API_URL, new Blob([body], {type:'text/plain;charset=utf-8'}))) return;
+  }catch(e){}
+  fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body, keepalive:true}).catch(() => {});
+}
+
+/* ====== Auth flow ====== */
+function boot(){
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(API_URL)) return show('scrSetup');
+  if(!token){ show('scrLogin'); $('#pin').focus(); return; }
+  show('scrApp');
+  try{ links = JSON.parse(lsGet(LS.cache)) || []; }catch(e){ links = []; }
+  render();
+  refresh(true);
+}
+
+function signOut(msg){
+  token = null; links = []; status = {}; statusAt = '';
+  lsDel(LS.token); lsDel(LS.cache);
+  if($('#dlg').open) $('#dlg').close();
+  show('scrLogin');
+  $('#pin').value = '';
+  $('#loginMsg').textContent = msg || '';
+  $('#pin').focus();
+}
+
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pin = $('#pin').value.trim();
+  if(!pin){ $('#loginMsg').textContent = 'Masukkan PIN dulu.'; return; }
+  const btn = $('#loginBtn');
+  btn.disabled = true; btn.textContent = 'Memeriksa…'; $('#loginMsg').textContent = '';
+  try{
+    const d = await api('login', {pin});
+    token = d.token; lsSet(LS.token, token);
+    boot();
+  }catch(err){
+    $('#loginMsg').textContent = err.message;
+    $('#pin').select();
+  }finally{
+    btn.disabled = false; btn.textContent = 'Masuk';
+  }
+});
+
+/* ====== Data loading ====== */
+let loading = false;
+async function refresh(withStatus){
+  loading = true; renderSummary();
+  try{
+    const d = await api('list');
+    links = d.links || []; cacheLinks();
+    loading = false; render();
+    if(withStatus) loadStatus(false);
+  }catch(e){
+    loading = false;
+    if(e.auth) return;
+    if(links.length){ render(); toast('Gagal memuat data terbaru. Menampilkan data tersimpan.'); }
+    else $('#list').innerHTML = `<div class="empty"><p>${esc(e.message)}</p><button class="btn" type="button" data-act="reload">Coba lagi</button></div>`;
+    renderSummary();
+  }
+}
+
+async function loadStatus(force){
+  if(force) toast('Mengecek status app…');
+  try{
+    const d = await api('status', {force});
+    status = d.status || {}; statusAt = d.checkedAt || '';
+    render();
+    if(force) toast('Status diperbarui');
+  }catch(e){
+    if(!e.auth && force) toast('Gagal cek status: ' + e.message);
+  }
+}
+
+/* ====== Render ====== */
+function renderSummary(){
+  if(loading && !links.length){ $('#summary').textContent = 'Memuat link…'; return; }
+  const brands = new Set(links.map(l => l.brand || 'Lainnya'));
+  let html = `${links.length} link di ${brands.size} brand.`;
+  if(loading) html += ' Memperbarui…';
+  else if(statusAt){
+    const checked = links.filter(l => CHECKED(l.type) && status[l.id]);
+    const down = checked.filter(l => status[l.id].state === 'down').length;
+    html += ` Status dicek ${esc(statusAt.slice(11))} WIB, ` +
+      (down ? `<span class="bad">${down} app tidak bisa diakses</span>.` : 'semua app bisa diakses.');
+  }
+  $('#summary').innerHTML = html;
+}
+
+function statusDot(l){
+  if(!CHECKED(l.type)) return '';
+  const s = status[l.id];
+  if(!s) return `<span class="st unk" title="Status belum dicek"></span><span class="sr">status belum dicek</span>`;
+  if(s.state === 'up') return `<span class="st up" title="Bisa diakses"></span><span class="sr">bisa diakses</span>`;
+  const why = s.code ? `kode ${s.code}` : 'tidak merespons';
+  return `<span class="st down" title="Tidak bisa diakses (${why})"></span><span class="sr">tidak bisa diakses</span>`;
+}
+
+function rowHTML(l, opts = {}){
+  const key = (opts.fav ? 'f:' : 'b:') + l.id;
+  const open = state.expanded.has(key);
+  const sub = opts.fav ? (l.brand || 'Lainnya') : l.desc;
+  return `
+  <li class="row${opts.first ? ' first' : ''}">
+    <div class="line">
+      <a class="row-main" href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener noreferrer" data-open="${esc(l.id)}">
+        <span class="ico" title="${esc(TYPE_LABEL[l.type] || 'Lainnya')}">${ICONS[l.type] || ICONS.other}${statusDot(l)}</span>
+        <span class="txt"><span class="t">${esc(l.title)}</span>${sub ? `<span class="d">${esc(sub)}</span>` : ''}</span>
+        <span class="host">${esc(hostLabel(l.url))}</span>
+      </a>
+      <div class="acts">
+        <button class="icon-btn" type="button" data-act="pin" data-id="${esc(l.id)}" aria-pressed="${!!l.pinned}" aria-label="${l.pinned ? 'Hapus dari' : 'Tambah ke'} favorit" title="${l.pinned ? 'Hapus dari favorit' : 'Jadikan favorit'}">${ICONS.star}</button>
+        ${l.notes ? `<button class="icon-btn" type="button" data-act="notes" data-key="${esc(key)}" aria-expanded="${open}" aria-label="Lihat catatan ${esc(l.title)}" title="Catatan">${ICONS.notes}</button>` : ''}
+        ${l.script_url ? `<a class="icon-btn" href="${esc(safeUrl(l.script_url))}" target="_blank" rel="noopener noreferrer" aria-label="Buka editor Apps Script ${esc(l.title)}" title="Buka editor Apps Script">${ICONS.script}</a>` : ''}
+        <button class="icon-btn" type="button" data-act="copy" data-id="${esc(l.id)}" aria-label="Salin link ${esc(l.title)}" title="Salin link">${ICONS.copy}</button>
+        <button class="icon-btn" type="button" data-act="edit" data-id="${esc(l.id)}" aria-label="Ubah ${esc(l.title)}" title="Ubah">${ICONS.edit}</button>
+      </div>
+    </div>
+    ${open && l.notes ? `<p class="notes">${esc(l.notes)}</p>` : ''}
+  </li>`;
+}
+
+function render(){
+  const brands = [...new Set(links.map(l => l.brand || 'Lainnya'))];
+  colors = {}; let i = 0;
+  brands.forEach(b => { colors[b] = BRAND_COLORS[b] || FALLBACK_COLORS[i++ % FALLBACK_COLORS.length]; });
+  if(state.brand !== 'all' && !brands.includes(state.brand)) state.brand = 'all';
+
+  renderSummary();
+  $('#brandList').innerHTML = brands.map(b => `<option value="${esc(b)}">`).join('');
+  $('#chips').innerHTML = !links.length ? '' :
+    `<button class="chip" type="button" data-brand="all" aria-pressed="${state.brand==='all'}">Semua</button>` +
+    brands.map(b => `<button class="chip" type="button" data-brand="${esc(b)}" aria-pressed="${state.brand===b}"><span class="dot" style="--c:${colors[b]}"></span>${esc(b)}</button>`).join('');
+
+  const q = state.q.trim().toLowerCase();
+  const filtering = !!q || state.brand !== 'all';
+  visible = links.filter(l => {
+    const b = l.brand || 'Lainnya';
+    if(state.brand !== 'all' && b !== state.brand) return false;
+    if(!q) return true;
+    return [l.title, l.desc, b, l.url, l.notes, TYPE_LABEL[l.type]].join(' ').toLowerCase().includes(q);
+  });
+
+  // Sering dibuka
+  const freq = filtering ? [] : links.filter(l => l.open_count > 0)
+    .sort((a,b) => b.open_count - a.open_count).slice(0,5);
+  $('#quick').hidden = !freq.length;
+  $('#quick').innerHTML = freq.length ? `<span class="quick-label">Sering dibuka</span>` + freq.map(l =>
+    `<a class="qlink" href="${esc(safeUrl(l.url))}" target="_blank" rel="noopener noreferrer" data-open="${esc(l.id)}"><span class="dot" style="--c:${colors[l.brand||'Lainnya']}"></span>${esc(l.title)}</a>`).join('') : '';
+
+  if(!links.length){
+    if(!loading) $('#list').innerHTML = `<div class="empty"><p>Belum ada link. Tambahkan link pertama kamu.</p><button class="btn primary" type="button" data-act="add">Tambah link</button></div>`;
+    else $('#list').innerHTML = '';
+    return;
+  }
+  if(!visible.length){
+    $('#list').innerHTML = `<div class="empty"><p>${q ? `Tidak ada link yang cocok dengan “${esc(state.q)}”.` : 'Belum ada link di brand ini.'}</p><button class="btn primary" type="button" data-act="add">Tambah link</button></div>`;
+    return;
+  }
+
+  const firstId = q ? visible[0].id : null;
+  let html = '<div class="grid">';
+  const favs = filtering ? [] : links.filter(l => l.pinned);
+  if(favs.length){
+    html += `<section class="group fav"><header class="g-head">${ICONS.star.replace('<svg', '<svg class="star-ico"')}<h2>Favorit</h2><span class="count">${favs.length}</span></header>
+      <ul class="rows">${favs.map(l => rowHTML(l, {fav:true})).join('')}</ul></section>`;
+  }
+  brands.forEach(b => {
+    const items = visible.filter(l => (l.brand || 'Lainnya') === b);
+    if(!items.length) return;
+    html += `<section class="group" style="--c:${colors[b]}"><header class="g-head"><span class="dot"></span><h2>${esc(b)}</h2><span class="count">${items.length}</span></header>
+      <ul class="rows">${items.map(l => rowHTML(l, {first: l.id === firstId})).join('')}</ul></section>`;
+  });
+  $('#list').innerHTML = html + '</div>';
+}
+
+/* ====== Dialog tambah / ubah ====== */
+let editingId = null;
+function openDialog(id){
+  editingId = id || null;
+  const l = id ? links.find(x => x.id === id) : null;
+  $('#dlgTitle').textContent = l ? 'Ubah link' : 'Tambah link';
+  $('#fTitle').value = l?.title || '';
+  $('#fUrl').value = l?.url || '';
+  $('#fDesc').value = l?.desc || '';
+  $('#fBrand').value = l?.brand || (state.brand !== 'all' ? state.brand : '');
+  $('#fType').value = l?.type || 'app';
+  $('#fScript').value = l?.script_url || '';
+  $('#fNotes').value = l?.notes || '';
+  $('#delBtn').hidden = !l;
+  $('#err').textContent = '';
+  setBusy(false);
+  $('#dlg').showModal();
+  $('#fTitle').focus();
+}
+function setBusy(b, label){
+  ['#saveBtn','#delBtn','#cancelBtn'].forEach(s => $(s).disabled = b);
+  $('#saveBtn').textContent = b && label ? label : 'Simpan';
+}
+
+$('#form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const link = {
+    id: editingId || undefined,
+    title: $('#fTitle').value.trim(),
+    url: $('#fUrl').value.trim(),
+    desc: $('#fDesc').value.trim(),
+    brand: $('#fBrand').value.trim() || 'Lainnya',
+    type: $('#fType').value,
+    script_url: $('#fScript').value.trim(),
+    notes: $('#fNotes').value.trim()
+  };
+  if(!link.title){ $('#err').textContent = 'Judul wajib diisi.'; $('#fTitle').focus(); return; }
+  if(!/^https?:\/\/\S+$/i.test(link.url)){ $('#err').textContent = 'URL harus diawali https:// atau http://'; $('#fUrl').focus(); return; }
+  if(link.script_url && !/^https?:\/\/\S+$/i.test(link.script_url)){ $('#err').textContent = 'Link editor harus diawali https://'; $('#fScript').focus(); return; }
+
+  setBusy(true, 'Menyimpan…');
+  try{
+    await api('save', {link});
+    $('#dlg').close();
+    toast(editingId ? 'Link diperbarui' : 'Link ditambahkan');
+    await refresh(false);
+  }catch(err){
+    if(!err.auth){ $('#err').textContent = err.message; setBusy(false); }
+  }
+});
+
+$('#delBtn').addEventListener('click', async () => {
+  const l = links.find(x => x.id === editingId);
+  if(!l || !confirm(`Hapus “${l.title}” dari dashboard? Baris di spreadsheet juga ikut terhapus.`)) return;
+  setBusy(true, 'Menghapus…');
+  try{
+    await api('delete', {id:l.id});
+    $('#dlg').close();
+    toast('Link dihapus');
+    await refresh(false);
+  }catch(err){
+    if(!err.auth){ $('#err').textContent = err.message; setBusy(false); }
+  }
+});
+$('#cancelBtn').addEventListener('click', () => $('#dlg').close());
+$('#addBtn').addEventListener('click', () => openDialog());
+
+/* ====== Aksi di list ====== */
+async function togglePin(id){
+  const l = links.find(x => x.id === id);
+  if(!l) return;
+  const next = !l.pinned;
+  l.pinned = next; render();
+  try{
+    await api('pin', {id, pinned:next});
+    cacheLinks();
+    toast(next ? 'Ditambahkan ke favorit' : 'Dihapus dari favorit');
+  }catch(err){
+    if(err.auth) return;
+    l.pinned = !next; render();
+    toast('Gagal menyimpan favorit: ' + err.message);
+  }
+}
+
+document.addEventListener('click', async e => {
+  const openEl = e.target.closest('[data-open]');
+  if(openEl){ trackOpen(openEl.dataset.open); return; }
+  const chip = e.target.closest('.chip');
+  if(chip){ state.brand = chip.dataset.brand; render(); return; }
+  const btn = e.target.closest('[data-act]');
+  if(!btn) return;
+  const act = btn.dataset.act;
+  if(act === 'add') return openDialog();
+  if(act === 'reload') return refresh(true);
+  if(act === 'edit') return openDialog(btn.dataset.id);
+  if(act === 'pin') return togglePin(btn.dataset.id);
+  if(act === 'notes'){
+    const k = btn.dataset.key;
+    state.expanded.has(k) ? state.expanded.delete(k) : state.expanded.add(k);
+    return render();
+  }
+  if(act === 'copy'){
+    const l = links.find(x => x.id === btn.dataset.id);
+    try{ await navigator.clipboard.writeText(l.url); toast('Link disalin'); }
+    catch(err){ toast('Gagal menyalin. Buka link lalu salin dari address bar.'); }
+  }
+});
+
+/* ====== Search & keyboard ====== */
+$('#q').addEventListener('input', e => { state.q = e.target.value; render(); });
+$('#q').addEventListener('keydown', e => {
+  if(e.key === 'Enter' && visible[0]){
+    trackOpen(visible[0].id);
+    window.open(safeUrl(visible[0].url), '_blank', 'noopener');
+  }
+  if(e.key === 'Escape'){ e.target.value = ''; state.q = ''; render(); }
+});
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+  if(e.key === '/' && !typing && !$('#dlg').open && !$('#scrApp').hidden){ e.preventDefault(); $('#q').focus(); }
+});
+
+/* ====== Menu Kelola ====== */
+function closeMenu(){ $('#menu').open = false; }
+$('#statusBtn').addEventListener('click', () => { closeMenu(); loadStatus(true); });
+$('#reloadBtn').addEventListener('click', () => { closeMenu(); refresh(true); });
+$('#exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(links, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `ops-hub-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  closeMenu(); toast('Backup JSON diunduh');
+});
+$('#logoutBtn').addEventListener('click', () => {
+  closeMenu();
+  api('logout').catch(() => {});
+  signOut('Kamu sudah keluar.');
+});
+function applyTheme(t){ if(t) document.documentElement.dataset.theme = t; }
+applyTheme(lsGet(LS.theme));
+$('#themeBtn').addEventListener('click', () => {
+  const cur = document.documentElement.dataset.theme ||
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  applyTheme(next); lsSet(LS.theme, next);
+  closeMenu();
+});
+document.addEventListener('click', e => { if(!e.target.closest('#menu')) closeMenu(); });
+
+boot();
+</script>
+</body>
+</html>
