@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Ops Map</title>
+<style>
+:root{
+  --bg:#F3F1ED; --card:#FFFFFF; --soft:#F6F4F0; --line:#E4E0D9; --ink:#2B2824; --muted:#6A645D;
+  --ok:#2F8A57; --ok-fg:#24683F; --ok-bg:#E3F0E6;
+  --warn:#D9952B; --warn-fg:#8A5208; --warn-bg:#FBEBD0;
+  --build:#3F74A3; --build-fg:#2F5A80; --build-bg:#E1EAF3;
+  --plan:#8C7F72; --plan-fg:#5E544A; --plan-bg:#ECE6DD;
+  --err:#B03A2E; --err-fg:#9B2F22; --err-bg:#F8E0DB;
+  --info:#3F74A3;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,Carlito,'Segoe UI',system-ui,sans-serif}
+a{color:inherit}
+button{font:inherit}
+[hidden]{display:none!important}
+.wrap{max-width:1360px;margin:0 auto;padding:24px 16px 40px;display:flex;flex-direction:column;gap:20px}
+
+/* gate */
+.gate{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.gate .card{width:100%;max-width:360px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:12px}
+.gate h1{margin:0;font-size:28px}
+.gate p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+.pin{font-size:22px;letter-spacing:.3em;text-align:center;padding:12px;border:1px solid var(--line);border-radius:12px;width:100%}
+.msg{color:var(--err-fg);font-size:13px;min-height:18px}
+.btn{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn:disabled{opacity:.6;cursor:default}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.brandmark{display:flex;align-items:center;gap:14px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--muted)}
+.top h1{margin:0;font-size:34px;line-height:1.1}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.stamp{font-size:13px;color:var(--muted);margin-right:4px}
+.banner{background:var(--err-bg);color:var(--err-fg);border-radius:12px;padding:10px 14px;font-size:14px}
+
+/* kpi */
+.kpis{display:flex;flex-wrap:wrap;gap:12px}
+.kpi{flex:1 1 170px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.kpi.dark{background:var(--ink);border-color:var(--ink);color:#fff;flex-basis:200px}
+.kpi .l{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.kpi.dark .l,.kpi.dark .s{color:#D8D3CB}
+.kpi .v{font-size:24px;font-weight:700;line-height:1.2}
+.kpi .s{font-size:12px;color:var(--muted)}
+.chip{width:12px;height:12px;border-radius:3px;border:1px solid;flex:none}
+
+/* main */
+.main{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.scene{flex:999 1 640px;min-width:0;background:#FAF9F6;border:1px solid var(--line);border-radius:24px;padding:12px 12px 16px;display:flex;flex-direction:column;gap:10px}
+.scene svg{width:100%;height:auto;display:block}
+.svgbox{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:16px}
+@media (max-width:640px){.svgbox svg{width:760px;max-width:none}}
+.legend{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px;padding:0 8px;font-size:13px;color:var(--muted)}
+.legend .items{display:flex;flex-wrap:wrap;gap:8px 16px}
+.legend span.i{display:inline-flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.side{flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:18px}
+.kind{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.panel h2{margin:4px 0 0;font-size:26px;line-height:1.15}
+.headline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px;font-size:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.m{background:var(--soft);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.m .ml{font-size:12px;color:var(--muted)}
+.m .mv{font-size:20px;font-weight:700;line-height:1.2;overflow-wrap:anywhere}
+.m .ms{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:4px}
+.bar>i{display:block;height:6px;border-radius:3px}
+.h3{margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.alerts{display:flex;flex-direction:column;gap:10px}
+.al{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4}
+.al .dot{margin-top:6px;width:8px;height:8px}
+.foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid #ECE9E4;padding-top:16px}
+.src{font-size:12px;line-height:1.4;color:var(--muted);flex:1 1 160px}
+.list{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.grp{display:flex;flex-direction:column;gap:2px}
+.gh{display:flex;align-items:center;gap:8px;padding:4px 8px;font-size:12px;font-weight:700;color:#5B5650}
+.loc{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px 12px;border:1px solid transparent;border-radius:12px;background:var(--card);color:var(--ink);font-size:14px;text-align:left;cursor:pointer}
+.loc:hover{background:var(--soft)}
+.loc[aria-current="true"]{background:var(--bg);border-color:var(--ink)}
+.loc .n{flex:1 1 auto;min-width:0;font-weight:700}
+.loc .st{font-size:12px;color:var(--muted)}
+.note{margin:0;font-size:13px;line-height:1.5;color:var(--muted)}
+
+/* svg */
+.dash{stroke-width:2;stroke-dasharray:8 8}
+.plot{stroke-width:1.5;stroke-dasharray:5 4}
+.hl{stroke-width:2.5;fill-opacity:.10;transition:opacity .2s}
+.thin{stroke-width:1}
+.trunk{stroke-width:3;stroke-linecap:round}
+.scaf{stroke-width:1.6}
+.jib{stroke-width:3.5;stroke-linecap:round}
+.post{stroke-width:1.5}
+.lead{stroke-width:1.2;opacity:.45}
+.pillr{stroke-width:1.2}
+.sign{font-family:Calibri,Carlito,'Segoe UI',sans-serif;font-size:7px;font-weight:700;letter-spacing:.8px}
+.glabel{font-family:Calibri,Carlito,'Segoe UI',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px}
+.btxt{font-family:Calibri,Carlito,'Segoe UI',sans-serif;font-size:13px}
+.bname{font-family:Calibri,Carlito,'Segoe UI',sans-serif;font-size:13px;font-weight:700}
+.bsub{font-family:Calibri,Carlito,'Segoe UI',sans-serif;font-size:11px}
+.mid{text-anchor:middle}
+.bld{cursor:pointer}
+.bld:hover .pillr{stroke-width:2.2}
+.steam{opacity:0;transform-box:fill-box;transform-origin:center;animation:puff 3.6s ease-out infinite}
+.s2{animation-delay:1.2s}.s3{animation-delay:2.4s}
+@keyframes puff{0%{opacity:0;transform:translateY(6px) scale(.6)}25%{opacity:.85}100%{opacity:0;transform:translateY(-22px) scale(1.5)}}
+.blink{animation:blink 1.4s steps(1) infinite}
+@keyframes blink{0%,55%{opacity:1}56%,100%{opacity:.15}}
+.truck{opacity:0}
+.t1{animation:t1 12s linear infinite}
+.t2{animation:t2 8s linear 3s infinite}
+@keyframes t1{0%{opacity:0;transform:translate(0,0)}4%{opacity:1}38%{transform:translate(185.6px,92.8px)}88%{opacity:1;transform:translate(-91.2px,231.2px)}96%,100%{opacity:0;transform:translate(-91.2px,231.2px)}}
+@keyframes t2{0%{opacity:0;transform:translate(0,0)}6%{opacity:1}40%{transform:translate(-60.8px,-30.4px)}75%{opacity:1;transform:translate(-60.8px,-30.4px)}85%,100%{opacity:0;transform:translate(-60.8px,-30.4px)}}
+.no-do .truck{display:none}
+@media (prefers-reduced-motion: reduce){.steam,.truck,.blink{animation:none}.steam{opacity:.7}.t1{opacity:1}}
+</style>
+</head>
+<body>
+
+<section class="gate" id="scrSetup" hidden>
+  <div class="card">
+    <h1>Ops Map</h1>
+    <p>Alamat server Ops Hub belum ketemu. Pastikan file <b>map.html</b> ada di repo yang sama dengan <b>index.html</b> Ops Hub, atau isi <code>API_URL_OVERRIDE</code> di file ini.</p>
+  </div>
+</section>
+
+<section class="gate" id="scrLogin" hidden>
+  <form class="card" id="loginForm" novalidate>
+    <h1>Ops Map</h1>
+    <p>Masukkan PIN Ops Hub.</p>
+    <label for="pin" style="position:absolute;left:-9999px">PIN</label>
+    <input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="20" required>
+    <p class="msg" id="loginMsg" role="alert"></p>
+    <button class="btn primary" type="submit" id="loginBtn">Masuk</button>
+  </form>
+</section>
+
+<div class="wrap" id="scrApp" hidden>
+  <header class="top">
+    <div class="brandmark">
+      <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+        <polygon points="22,4 30.5,8.25 22,12.5 13.5,8.25" fill="#F6C38E"></polygon>
+        <polygon points="30.5,8.25 39,12.5 30.5,16.75 22,12.5" fill="#F8CFD8"></polygon>
+        <polygon points="13.5,8.25 22,12.5 13.5,16.75 5,12.5" fill="#E9D5B4"></polygon>
+        <polygon points="22,12.5 30.5,16.75 22,21 13.5,16.75" fill="#FFFFFF"></polygon>
+        <polygon points="5,12.5 22,21 22,40 5,31.5" fill="#D8D3CB"></polygon>
+        <polygon points="22,21 39,12.5 39,31.5 22,40" fill="#BDB7AE"></polygon>
+      </svg>
+      <div>
+        <div class="eyebrow">SISTER BRANDS</div>
+        <h1>Ops Map</h1>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="stamp" id="stamp">Memuat data…</span>
+      <button class="btn" type="button" id="refreshBtn">Refresh</button>
+      <a class="btn" href="/index.html" id="hubLink">Daftar link</a>
+      <button class="btn" type="button" id="logoutBtn">Keluar</button>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" role="alert" hidden></div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="main">
+    <section class="scene" aria-label="Peta">
+      <div class="svgbox">
+      <svg id="map" viewBox="10 50 1110 700" role="img" aria-label="Peta isometrik empat brand: SOYA SUKA, MONTY&amp;Co., No. 25 dan YO-NAI">
+<polygon points="1110,490 662,714 662,736 1110,512" fill="#A39C92"></polygon>
+<polygon points="22,394 662,714 662,736 22,416" fill="#B7B0A6"></polygon>
+<polygon points="470,170 1110,490 662,714 22,394" fill="#CCC6BC"></polygon>
+<line x1="809.2" y1="339.6" x2="361.2" y2="563.6" class="dash" stroke="#F4F2EE"></line>
+<line x1="969.2" y1="419.6" x2="521.2" y2="643.6" class="dash" stroke="#F4F2EE"></line>
+<line x1="617.2" y1="461.2" x2="732.4" y2="518.8" class="dash" stroke="#F4F2EE"></line>
+<polygon points="770.8,333.2 348.4,544.4 348.4,536.4 770.8,325.2" fill="#CDB896"></polygon>
+<polygon points="47.6,394 348.4,544.4 348.4,536.4 47.6,386" fill="#E2D1B4"></polygon>
+<polygon points="470,174.8 770.8,325.2 348.4,536.4 47.6,386" fill="#F3EADB"></polygon>
+<polygon points="937.2,416.4 751.6,509.2 751.6,501.2 937.2,408.4" fill="#D3884A"></polygon>
+<polygon points="636.4,451.6 751.6,509.2 751.6,501.2 636.4,443.6" fill="#E9A262"></polygon>
+<polygon points="822,350.8 937.2,408.4 751.6,501.2 636.4,443.6" fill="#F6C38E"></polygon>
+<polygon points="713.2,528.4 514.8,627.6 514.8,619.6 713.2,520.4" fill="#D5D0C8"></polygon>
+<polygon points="399.6,570 514.8,627.6 514.8,619.6 399.6,562" fill="#EAE7E1"></polygon>
+<polygon points="598,462.8 713.2,520.4 514.8,619.6 399.6,562" fill="#FFFFFF"></polygon>
+<polygon points="1084.4,490 662,701.2 662,693.2 1084.4,482" fill="#D88FA1"></polygon>
+<polygon points="553.2,646.8 662,701.2 662,693.2 553.2,638.8" fill="#EBAABA"></polygon>
+<polygon points="975.6,427.6 1084.4,482 662,693.2 553.2,638.8" fill="#F8CFD8"></polygon>
+<polygon points="332.4,243.6 633.2,394 604.4,408.4 303.6,258" fill="#CCC6BC"></polygon>
+<line x1="318" y1="250.8" x2="618.8" y2="401.2" class="dash" stroke="#F4F2EE"></line>
+<polygon points="425.2,267.6 476.4,293.2 454,304.4 402.8,278.8" fill="#E3D6C1"></polygon>
+<polygon points="604.4,331.6 642.8,350.8 594.8,374.8 556.4,355.6" fill="#E3D6C1"></polygon>
+<text transform="matrix(0.894,0.447,-0.894,0.447,247.6,474.8)" class="glabel" fill="#9A6440">SOYA SUKA</text>
+<text transform="matrix(0.894,0.447,-0.894,0.447,654,446)" class="glabel" fill="#A4561A">MONTY&amp;Co.</text>
+<text transform="matrix(0.894,0.447,-0.894,0.447,418.8,563.6)" class="glabel" fill="#8A847C">YO-NAI</text>
+<text transform="matrix(0.894,0.447,-0.894,0.447,572.4,640.4)" class="glabel" fill="#A23A55">No. 25</text>
+<polygon points="156.4,357.2 220.4,389.2 150,424.4 86,392.4" fill="#E2CFAE" stroke="#8E5A36" class="plot"></polygon>
+<polygon points="233.2,395.6 290.8,424.4 220.4,459.6 162.8,430.8" fill="#E2CFAE" stroke="#8E5A36" class="plot"></polygon>
+<polygon points="476.4,197.2 653.1,285.6 552.3,336 375.6,247.6" fill="#2B2824" opacity="0.10"></polygon>
+<polygon points="655.6,286.8 789.3,353.6 714.1,391.2 580.4,324.4" fill="#2B2824" opacity="0.10"></polygon>
+<polygon points="297.2,286.8 445.8,361.1 332.2,417.9 183.6,343.6" fill="#2B2824" opacity="0.10"></polygon>
+<polygon points="463.6,363.6 580.9,422.3 499.3,463.1 382,404.4" fill="#2B2824" opacity="0.10"></polygon>
+<polygon points="812.4,362 924.8,418.2 840,460.6 727.6,404.4" fill="#2B2824" opacity="0.10"></polygon>
+<polygon points="534,520.4 616.5,561.6 554.1,592.8 471.6,551.6" fill="#2B2824" opacity="0.10"></polygon>
+<polygon points="978.8,445.2 1076.2,493.9 1007.4,528.3 910,479.6" fill="#2B2824" opacity="0.10"></polygon>
+<polygon points="876.4,496.4 973.8,545.1 905,579.5 807.6,530.8" fill="#2B2824" opacity="0.10"></polygon>
+<polygon points="774,547.6 871.4,596.3 802.6,630.7 705.2,582" fill="#2B2824" opacity="0.10"></polygon>
+<polygon points="671.6,598.8 769,647.5 700.2,681.9 602.8,633.2" fill="#2B2824" opacity="0.10"></polygon>
+<polygon points="476.4,187.6 639.6,269.2 524.4,326.8 361.2,245.2" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="ck"></polygon>
+<polygon points="655.6,277.2 751.6,325.2 662,370 566,322" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="hq"></polygon>
+<polygon points="297.2,277.2 425.2,341.2 297.2,405.2 169.2,341.2" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="moi"></polygon>
+<polygon points="463.6,354 578.8,411.6 482.8,459.6 367.6,402" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="bxc"></polygon>
+<polygon points="812.4,352.4 908.4,400.4 809.2,450 713.2,402" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="monty"></polygon>
+<polygon points="534,510.8 617.2,552.4 540.4,590.8 457.2,549.2" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="yonai"></polygon>
+<polygon points="978.8,435.6 1068.4,480.4 985.2,522 895.6,477.2" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="pim2"></polygon>
+<polygon points="876.4,486.8 966,531.6 882.8,573.2 793.2,528.4" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="kmall"></polygon>
+<polygon points="774,538 863.6,582.8 780.4,624.4 690.8,579.6" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="alsut"></polygon>
+<polygon points="671.6,589.2 761.2,634 678,675.6 588.4,630.8" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="pasar"></polygon>
+<polygon points="156.4,350.8 233.2,389.2 150,430.8 73.2,392.4" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="margonda"></polygon>
+<polygon points="233.2,389.2 303.6,424.4 220.4,466 150,430.8" fill="#2B2824" stroke="#2B2824" class="hl" opacity="0" data-hl="pim3"></polygon>
+<ellipse cx="476.2" cy="190.2" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="473.2" y1="189.2" x2="473.2" y2="179.2" class="trunk" stroke="#8E5A36"></line>
+<circle cx="473.2" cy="173.2" r="10" fill="#7F9468"></circle>
+<circle cx="470.2" cy="170.2" r="6" fill="#98AB80"></circle>
+<ellipse cx="639.4" cy="271.8" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="636.4" y1="270.8" x2="636.4" y2="260.8" class="trunk" stroke="#8E5A36"></line>
+<circle cx="636.4" cy="254.8" r="10" fill="#7F9468"></circle>
+<circle cx="633.4" cy="251.8" r="6" fill="#98AB80"></circle>
+<ellipse cx="639.4" cy="380.6" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="636.4" y1="379.6" x2="636.4" y2="369.6" class="trunk" stroke="#8E5A36"></line>
+<circle cx="636.4" cy="363.6" r="10" fill="#7F9468"></circle>
+<circle cx="633.4" cy="360.6" r="6" fill="#98AB80"></circle>
+<ellipse cx="313" cy="271.8" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="310" y1="270.8" x2="310" y2="260.8" class="trunk" stroke="#8E5A36"></line>
+<circle cx="310" cy="254.8" r="10" fill="#7F9468"></circle>
+<circle cx="307" cy="251.8" r="6" fill="#98AB80"></circle>
+<ellipse cx="338.6" cy="403" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="335.6" y1="402" x2="335.6" y2="392" class="trunk" stroke="#8E5A36"></line>
+<circle cx="335.6" cy="386" r="10" fill="#7F9468"></circle>
+<circle cx="332.6" cy="383" r="6" fill="#98AB80"></circle>
+<ellipse cx="325.8" cy="460.6" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="322.8" y1="459.6" x2="322.8" y2="449.6" class="trunk" stroke="#8E5A36"></line>
+<circle cx="322.8" cy="443.6" r="10" fill="#7F9468"></circle>
+<circle cx="319.8" cy="440.6" r="6" fill="#98AB80"></circle>
+<ellipse cx="351.4" cy="499" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="348.4" y1="498" x2="348.4" y2="488" class="trunk" stroke="#8E5A36"></line>
+<circle cx="348.4" cy="482" r="10" fill="#7F9468"></circle>
+<circle cx="345.4" cy="479" r="6" fill="#98AB80"></circle>
+<ellipse cx="908.2" cy="412.6" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="905.2" y1="411.6" x2="905.2" y2="401.6" class="trunk" stroke="#8E5A36"></line>
+<circle cx="905.2" cy="395.6" r="10" fill="#7F9468"></circle>
+<circle cx="902.2" cy="392.6" r="6" fill="#98AB80"></circle>
+<ellipse cx="674.6" cy="443" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="671.6" y1="442" x2="671.6" y2="432" class="trunk" stroke="#8E5A36"></line>
+<circle cx="671.6" cy="426" r="10" fill="#7F9468"></circle>
+<circle cx="668.6" cy="423" r="6" fill="#98AB80"></circle>
+<ellipse cx="757.8" cy="487.8" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="754.8" y1="486.8" x2="754.8" y2="476.8" class="trunk" stroke="#8E5A36"></line>
+<circle cx="754.8" cy="470.8" r="10" fill="#7F9468"></circle>
+<circle cx="751.8" cy="467.8" r="6" fill="#98AB80"></circle>
+<ellipse cx="684.2" cy="524.6" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="681.2" y1="523.6" x2="681.2" y2="513.6" class="trunk" stroke="#8E5A36"></line>
+<circle cx="681.2" cy="507.6" r="10" fill="#7F9468"></circle>
+<circle cx="678.2" cy="504.6" r="6" fill="#98AB80"></circle>
+<ellipse cx="543.4" cy="595" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="540.4" y1="594" x2="540.4" y2="584" class="trunk" stroke="#8E5A36"></line>
+<circle cx="540.4" cy="578" r="10" fill="#7F9468"></circle>
+<circle cx="537.4" cy="575" r="6" fill="#98AB80"></circle>
+<ellipse cx="524.2" cy="604.6" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="521.2" y1="603.6" x2="521.2" y2="593.6" class="trunk" stroke="#8E5A36"></line>
+<circle cx="521.2" cy="587.6" r="10" fill="#7F9468"></circle>
+<circle cx="518.2" cy="584.6" r="6" fill="#98AB80"></circle>
+<ellipse cx="975.4" cy="526.2" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="972.4" y1="525.2" x2="972.4" y2="515.2" class="trunk" stroke="#8E5A36"></line>
+<circle cx="972.4" cy="509.2" r="10" fill="#7F9468"></circle>
+<circle cx="969.4" cy="506.2" r="6" fill="#98AB80"></circle>
+<ellipse cx="789.8" cy="535.8" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="786.8" y1="534.8" x2="786.8" y2="524.8" class="trunk" stroke="#8E5A36"></line>
+<circle cx="786.8" cy="518.8" r="10" fill="#7F9468"></circle>
+<circle cx="783.8" cy="515.8" r="6" fill="#98AB80"></circle>
+<ellipse cx="770.6" cy="628.6" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="767.6" y1="627.6" x2="767.6" y2="617.6" class="trunk" stroke="#8E5A36"></line>
+<circle cx="767.6" cy="611.6" r="10" fill="#7F9468"></circle>
+<circle cx="764.6" cy="608.6" r="6" fill="#98AB80"></circle>
+<ellipse cx="671.4" cy="678.2" rx="9" ry="4" fill="#2B2824" opacity="0.12"></ellipse>
+<line x1="668.4" y1="677.2" x2="668.4" y2="667.2" class="trunk" stroke="#8E5A36"></line>
+<circle cx="668.4" cy="661.2" r="10" fill="#7F9468"></circle>
+<circle cx="665.4" cy="658.2" r="6" fill="#98AB80"></circle>
+<g class="bld" data-key="ck">
+<polygon points="620.4,269.2 524.4,317.2 524.4,271.2 620.4,223.2" fill="#E5D6C1"></polygon>
+<polygon points="380.4,245.2 524.4,317.2 524.4,271.2 380.4,199.2" fill="#F8F2E8"></polygon>
+<polygon points="476.4,151.2 620.4,223.2 524.4,271.2 380.4,199.2" fill="#B97B51"></polygon>
+<polygon points="399.6,240.8 417.2,249.6 417.2,233.6 399.6,224.8" fill="#4A3727" opacity="0.85"></polygon>
+<polygon points="428.4,255.2 446,264 446,248 428.4,239.2" fill="#4A3727" opacity="0.85"></polygon>
+<polygon points="457.2,269.6 474.8,278.4 474.8,262.4 457.2,253.6" fill="#4A3727" opacity="0.85"></polygon>
+<polygon points="486,284 503.6,292.8 503.6,276.8 486,268" fill="#4A3727" opacity="0.85"></polygon>
+<polygon points="396.4,218.2 508.4,274.2 508.4,266.2 396.4,210.2" fill="#3E342A"></polygon>
+<text transform="matrix(0.894,0.447,0,1,452.4,244.7)" class="sign mid" fill="#F4EEE3">CENTRAL KITCHEN</text>
+<polygon points="582,288.4 543.6,307.6 543.6,279.6 582,260.4" fill="#3E342A"></polygon>
+<polygon points="534,199.2 518,207.2 518,201.2 534,193.2" fill="#82522F"></polygon>
+<polygon points="502,199.2 518,207.2 518,201.2 502,193.2" fill="#9A6440"></polygon>
+<polygon points="518,185.2 534,193.2 518,201.2 502,193.2" fill="#E9D9C4"></polygon>
+<polygon points="566,215.2 550,223.2 550,217.2 566,209.2" fill="#82522F"></polygon>
+<polygon points="534,215.2 550,223.2 550,217.2 534,209.2" fill="#9A6440"></polygon>
+<polygon points="550,201.2 566,209.2 550,217.2 534,209.2" fill="#E9D9C4"></polygon>
+<polygon points="514.8,224.8 498.8,232.8 498.8,226.8 514.8,218.8" fill="#82522F"></polygon>
+<polygon points="482.8,224.8 498.8,232.8 498.8,226.8 482.8,218.8" fill="#9A6440"></polygon>
+<polygon points="498.8,210.8 514.8,218.8 498.8,226.8 482.8,218.8" fill="#E9D9C4"></polygon>
+<polygon points="502,173.6 482.8,183.2 482.8,133.2 502,123.6" fill="#73482B"></polygon>
+<polygon points="463.6,173.6 482.8,183.2 482.8,133.2 463.6,123.6" fill="#8E5A36"></polygon>
+<polygon points="482.8,114 502,123.6 482.8,133.2 463.6,123.6" fill="#4A3727"></polygon>
+<circle cx="482.8" cy="115.6" r="6" fill="#FFFFFF" class="steam s1"></circle>
+<circle cx="481.2" cy="99.6" r="8" fill="#FFFFFF" class="steam s2"></circle>
+<circle cx="492.4" cy="88" r="10" fill="#FFFFFF" class="steam s3"></circle>
+</g>
+<g class="bld" data-key="hq">
+<polygon points="732.4,325.2 662,360.4 662,280.4 732.4,245.2" fill="#DCCFBC"></polygon>
+<polygon points="585.2,322 662,360.4 662,280.4 585.2,242" fill="#F4EEE4"></polygon>
+<polygon points="655.6,206.8 732.4,245.2 662,280.4 585.2,242" fill="#4A3727"></polygon>
+<polygon points="593.2,314 606,320.4 606,309.4 593.2,303" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="614,324.4 626.8,330.8 626.8,319.8 614,313.4" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="634.8,334.8 647.6,341.2 647.6,330.2 634.8,323.8" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="724.4,317.2 711.6,323.6 711.6,312.6 724.4,306.2" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="702,328.4 689.2,334.8 689.2,323.8 702,317.4" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="681.2,338.8 668.4,345.2 668.4,334.2 681.2,327.8" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="593.2,296 606,302.4 606,291.4 593.2,285" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="614,306.4 626.8,312.8 626.8,301.8 614,295.4" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="634.8,316.8 647.6,323.2 647.6,312.2 634.8,305.8" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="724.4,299.2 711.6,305.6 711.6,294.6 724.4,288.2" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="702,310.4 689.2,316.8 689.2,305.8 702,299.4" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="681.2,320.8 668.4,327.2 668.4,316.2 681.2,309.8" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="593.2,278 606,284.4 606,273.4 593.2,267" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="614,288.4 626.8,294.8 626.8,283.8 614,277.4" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="634.8,298.8 647.6,305.2 647.6,294.2 634.8,287.8" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="724.4,281.2 711.6,287.6 711.6,276.6 724.4,270.2" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="702,292.4 689.2,298.8 689.2,287.8 702,281.4" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="681.2,302.8 668.4,309.2 668.4,298.2 681.2,291.8" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="593.2,262 606,268.4 606,257.4 593.2,251" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="614,272.4 626.8,278.8 626.8,267.8 614,261.4" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="634.8,282.8 647.6,289.2 647.6,278.2 634.8,271.8" fill="#5B4A3A" opacity="0.9"></polygon>
+<polygon points="724.4,265.2 711.6,271.6 711.6,260.6 724.4,254.2" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="702,276.4 689.2,282.8 689.2,271.8 702,265.4" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="681.2,286.8 668.4,293.2 668.4,282.2 681.2,275.8" fill="#4A3727" opacity="0.9"></polygon>
+<polygon points="684.4,230.8 668.4,238.8 668.4,231.8 684.4,223.8" fill="#A08E77"></polygon>
+<polygon points="646,227.6 668.4,238.8 668.4,231.8 646,220.6" fill="#B8A68E"></polygon>
+<polygon points="662,212.6 684.4,223.8 668.4,231.8 646,220.6" fill="#E5D6C1"></polygon>
+</g>
+<g class="truck t1">
+<polygon points="470,317.2 450.8,326.8 450.8,313.8 470,304.2" fill="#E5D6C1"></polygon>
+<polygon points="428.4,315.6 450.8,326.8 450.8,313.8 428.4,302.6" fill="#FFFDF8"></polygon>
+<polygon points="447.6,293 470,304.2 450.8,313.8 428.4,302.6" fill="#B97B51"></polygon>
+</g>
+<g class="truck t2">
+<polygon points="470,317.2 450.8,326.8 450.8,313.8 470,304.2" fill="#E5D6C1"></polygon>
+<polygon points="428.4,315.6 450.8,326.8 450.8,313.8 428.4,302.6" fill="#FFFDF8"></polygon>
+<polygon points="447.6,293 470,304.2 450.8,313.8 428.4,302.6" fill="#B97B51"></polygon>
+</g>
+<g class="bld" data-key="moi">
+<polygon points="406,341.2 297.2,395.6 297.2,339.6 406,285.2" fill="#DBD1C2"></polygon>
+<polygon points="188.4,341.2 297.2,395.6 297.2,339.6 188.4,285.2" fill="#EDE6DB"></polygon>
+<polygon points="297.2,230.8 406,285.2 297.2,339.6 188.4,285.2" fill="#F8F4ED"></polygon>
+<polygon points="201.2,347.6 284.4,389.2 284.4,361.2 201.2,319.6" fill="#3E342A"></polygon>
+<line x1="222" y1="358" x2="222" y2="330" class="thin" stroke="#6B5D4F"></line>
+<line x1="242.8" y1="368.4" x2="242.8" y2="340.4" class="thin" stroke="#6B5D4F"></line>
+<line x1="263.6" y1="378.8" x2="263.6" y2="350.8" class="thin" stroke="#6B5D4F"></line>
+<polygon points="204.4,311.2 281.2,349.6 281.2,340.6 204.4,302.2" fill="#B97B51"></polygon>
+<text transform="matrix(0.894,0.447,0,1,242.8,328.9)" class="sign mid" fill="#FFFDF8">SOYA SUKA</text>
+<polygon points="201.2,312.6 215.1,319.5 195.9,337.1 182,330.2" fill="#B97B51"></polygon>
+<polygon points="215.1,319.5 228.9,326.5 209.7,344.1 195.9,337.1" fill="#FBF6EE"></polygon>
+<polygon points="228.9,326.5 242.8,333.4 223.6,351 209.7,344.1" fill="#B97B51"></polygon>
+<polygon points="242.8,333.4 256.7,340.3 237.5,357.9 223.6,351" fill="#FBF6EE"></polygon>
+<polygon points="256.7,340.3 270.5,347.3 251.3,364.9 237.5,357.9" fill="#B97B51"></polygon>
+<polygon points="270.5,347.3 284.4,354.2 265.2,371.8 251.3,364.9" fill="#FBF6EE"></polygon>
+<polygon points="399.6,296.4 303.6,344.4 303.6,340.4 399.6,292.4" fill="#C3B7A5"></polygon>
+</g>
+<g class="bld" data-key="monty">
+<polygon points="889.2,400.4 809.2,440.4 809.2,390.4 889.2,350.4" fill="#EEDFCF"></polygon>
+<polygon points="732.4,402 809.2,440.4 809.2,390.4 732.4,352" fill="#FFFBF5"></polygon>
+<polygon points="812.4,312 889.2,350.4 809.2,390.4 732.4,352" fill="#D96F1E"></polygon>
+<polygon points="742,406.8 799.6,435.6 799.6,409.6 742,380.8" fill="#3A2E27"></polygon>
+<line x1="762.8" y1="417.2" x2="762.8" y2="391.2" class="thin" stroke="#6B5D4F"></line>
+<line x1="783.6" y1="427.6" x2="783.6" y2="401.6" class="thin" stroke="#6B5D4F"></line>
+<polygon points="738.8,368.2 802.8,400.2 802.8,391.2 738.8,359.2" fill="#3A2E27"></polygon>
+<text transform="matrix(0.894,0.447,0,1,770.8,382.7)" class="sign mid" fill="#FFFBF5">MONTY&amp;Co.</text>
+<polygon points="742,373.8 751.6,378.6 734,394.4 724.4,389.6" fill="#D96F1E"></polygon>
+<polygon points="751.6,378.6 761.2,383.4 743.6,399.2 734,394.4" fill="#FFFBF5"></polygon>
+<polygon points="761.2,383.4 770.8,388.2 753.2,404 743.6,399.2" fill="#D96F1E"></polygon>
+<polygon points="770.8,388.2 780.4,393 762.8,408.8 753.2,404" fill="#FFFBF5"></polygon>
+<polygon points="780.4,393 790,397.8 772.4,413.6 762.8,408.8" fill="#D96F1E"></polygon>
+<polygon points="790,397.8 799.6,402.6 782,418.4 772.4,413.6" fill="#FFFBF5"></polygon>
+<polygon points="876.4,392.8 860.4,400.8 860.4,384.8 876.4,376.8" fill="#3A2E27" opacity="0.85"></polygon>
+<polygon points="850.8,405.6 834.8,413.6 834.8,397.6 850.8,389.6" fill="#3A2E27" opacity="0.85"></polygon>
+<polygon points="825.2,418.4 809.2,426.4 809.2,410.4 825.2,402.4" fill="#3A2E27" opacity="0.85"></polygon>
+<line x1="719.6" y1="427.6" x2="719.6" y2="407.6" class="thin" stroke="#3A2E27"></line>
+<ellipse cx="719.6" cy="407.6" rx="13" ry="6" fill="#D96F1E"></ellipse>
+<ellipse cx="719.6" cy="423.6" rx="7" ry="3.5" fill="#FFFBF5" stroke="#3A2E27" class="thin"></ellipse>
+<line x1="764.4" y1="450" x2="764.4" y2="430" class="thin" stroke="#3A2E27"></line>
+<ellipse cx="764.4" cy="430" rx="13" ry="6" fill="#D96F1E"></ellipse>
+<ellipse cx="764.4" cy="446" rx="7" ry="3.5" fill="#FFFBF5" stroke="#3A2E27" class="thin"></ellipse>
+</g>
+<g class="bld" data-key="bxc">
+<polygon points="559.6,411.6 482.8,450 482.8,420 559.6,381.6" fill="#DACCB7"></polygon>
+<polygon points="386.8,402 482.8,450 482.8,420 386.8,372" fill="#EFE7DA"></polygon>
+<polygon points="463.6,333.6 559.6,381.6 482.8,420 386.8,372" fill="#E4D8C5"></polygon>
+<polygon points="396.4,396.8 473.2,435.2 473.2,425.2 396.4,386.8" fill="#3E342A"></polygon>
+<text transform="matrix(0.894,0.447,0,1,434.8,413)" class="sign mid" fill="#F4EEE3">SEGERA DIBUKA</text>
+<line x1="385.2" y1="406" x2="385.2" y2="366" class="scaf" stroke="#B97B51"></line>
+<line x1="410.8" y1="418.8" x2="410.8" y2="378.8" class="scaf" stroke="#B97B51"></line>
+<line x1="436.4" y1="431.6" x2="436.4" y2="391.6" class="scaf" stroke="#B97B51"></line>
+<line x1="462" y1="444.4" x2="462" y2="404.4" class="scaf" stroke="#B97B51"></line>
+<line x1="474.8" y1="450.8" x2="474.8" y2="410.8" class="scaf" stroke="#B97B51"></line>
+<line x1="385.2" y1="392" x2="474.8" y2="436.8" class="scaf" stroke="#B97B51"></line>
+<line x1="385.2" y1="379" x2="474.8" y2="423.8" class="scaf" stroke="#B97B51"></line>
+<line x1="385.2" y1="366" x2="474.8" y2="410.8" class="scaf" stroke="#B97B51"></line>
+<line x1="561.2" y1="415.6" x2="561.2" y2="375.6" class="scaf" stroke="#B97B51"></line>
+<line x1="535.6" y1="428.4" x2="535.6" y2="388.4" class="scaf" stroke="#B97B51"></line>
+<line x1="510" y1="441.2" x2="510" y2="401.2" class="scaf" stroke="#B97B51"></line>
+<line x1="490.8" y1="450.8" x2="490.8" y2="410.8" class="scaf" stroke="#B97B51"></line>
+<line x1="561.2" y1="401.6" x2="490.8" y2="436.8" class="scaf" stroke="#B97B51"></line>
+<line x1="561.2" y1="388.6" x2="490.8" y2="423.8" class="scaf" stroke="#B97B51"></line>
+<line x1="561.2" y1="375.6" x2="490.8" y2="410.8" class="scaf" stroke="#B97B51"></line>
+<polygon points="553.2,411.6 543.6,416.4 543.6,298.4 553.2,293.6" fill="#B97A1E"></polygon>
+<polygon points="534,411.6 543.6,416.4 543.6,298.4 534,293.6" fill="#D9952B"></polygon>
+<polygon points="543.6,288.8 553.2,293.6 543.6,298.4 534,293.6" fill="#E8A23A"></polygon>
+<line x1="494" y1="268.8" x2="564.4" y2="304" class="jib" stroke="#D9952B"></line>
+<polygon points="570.8,304.8 558,311.2 558,305.2 570.8,298.8" fill="#4A3727"></polygon>
+<polygon points="543.6,304 558,311.2 558,305.2 543.6,298" fill="#5B4A3A"></polygon>
+<polygon points="556.4,291.6 570.8,298.8 558,305.2 543.6,298" fill="#6B5D4F"></polygon>
+<line x1="503.6" y1="273.6" x2="503.6" y2="325.6" class="thin" stroke="#3E342A"></line>
+<polygon points="516.4,331.6 503.6,338 503.6,332 516.4,325.6" fill="#82522F"></polygon>
+<polygon points="490.8,331.6 503.6,338 503.6,332 490.8,325.6" fill="#9A6440"></polygon>
+<polygon points="503.6,319.2 516.4,325.6 503.6,332 490.8,325.6" fill="#B97B51"></polygon>
+<circle cx="543.6" cy="285.6" r="3.5" fill="#D2402C" class="blink"></circle>
+</g>
+<g class="bld" data-key="pim2">
+<polygon points="1049.2,480.4 985.2,512.4 985.2,474.4 1049.2,442.4" fill="#EADFE1"></polygon>
+<polygon points="914.8,477.2 985.2,512.4 985.2,474.4 914.8,439.2" fill="#FFFFFF"></polygon>
+<polygon points="978.8,407.2 1049.2,442.4 985.2,474.4 914.8,439.2" fill="#7E2430"></polygon>
+<polygon points="922.8,481.2 977.2,508.4 977.2,484.4 922.8,457.2" fill="#3A2A2D"></polygon>
+<line x1="950" y1="494.8" x2="950" y2="470.8" class="thin" stroke="#7A6A6D"></line>
+<polygon points="921.2,450.4 978.8,479.2 978.8,470.2 921.2,441.4" fill="#B3263A"></polygon>
+<text transform="matrix(0.894,0.447,0,1,950,463.3)" class="sign mid" fill="#F0CF7A">NO. 25</text>
+<polygon points="1033.2,476.4 1001.2,492.4 1001.2,474.4 1033.2,458.4" fill="#3A2A2D" opacity="0.8"></polygon>
+</g>
+<g class="bld" data-key="kmall">
+<polygon points="946.8,531.6 882.8,563.6 882.8,525.6 946.8,493.6" fill="#EADFE1"></polygon>
+<polygon points="812.4,528.4 882.8,563.6 882.8,525.6 812.4,490.4" fill="#FFFFFF"></polygon>
+<polygon points="876.4,458.4 946.8,493.6 882.8,525.6 812.4,490.4" fill="#7E2430"></polygon>
+<polygon points="820.4,532.4 874.8,559.6 874.8,535.6 820.4,508.4" fill="#3A2A2D"></polygon>
+<line x1="847.6" y1="546" x2="847.6" y2="522" class="thin" stroke="#7A6A6D"></line>
+<polygon points="818.8,501.6 876.4,530.4 876.4,521.4 818.8,492.6" fill="#B3263A"></polygon>
+<text transform="matrix(0.894,0.447,0,1,847.6,514.5)" class="sign mid" fill="#F0CF7A">NO. 25</text>
+<polygon points="930.8,527.6 898.8,543.6 898.8,525.6 930.8,509.6" fill="#3A2A2D" opacity="0.8"></polygon>
+</g>
+<g class="bld" data-key="yonai">
+<polygon points="598,552.4 540.4,581.2 540.4,555.2 598,526.4" fill="#DCD7CF"></polygon>
+<polygon points="476.4,549.2 540.4,581.2 540.4,555.2 476.4,523.2" fill="#F6F4F0"></polygon>
+<polygon points="534,494.4 598,526.4 540.4,555.2 476.4,523.2" fill="#2B2824"></polygon>
+<polygon points="486,554 530.8,576.4 530.8,560.4 486,538" fill="#5B5650"></polygon>
+<polygon points="486,535 530.8,557.4 530.8,550.4 486,528" fill="#2B2824"></polygon>
+<text transform="matrix(0.894,0.447,0,1,508.4,544.7)" class="sign mid" fill="#FFFFFF">YO-NAI</text>
+</g>
+<g class="bld" data-key="alsut">
+<polygon points="844.4,582.8 780.4,614.8 780.4,576.8 844.4,544.8" fill="#EADFE1"></polygon>
+<polygon points="710,579.6 780.4,614.8 780.4,576.8 710,541.6" fill="#FFFFFF"></polygon>
+<polygon points="774,509.6 844.4,544.8 780.4,576.8 710,541.6" fill="#7E2430"></polygon>
+<polygon points="718,583.6 772.4,610.8 772.4,586.8 718,559.6" fill="#3A2A2D"></polygon>
+<line x1="745.2" y1="597.2" x2="745.2" y2="573.2" class="thin" stroke="#7A6A6D"></line>
+<polygon points="716.4,552.8 774,581.6 774,572.6 716.4,543.8" fill="#B3263A"></polygon>
+<text transform="matrix(0.894,0.447,0,1,745.2,565.7)" class="sign mid" fill="#F0CF7A">NO. 25</text>
+<polygon points="828.4,578.8 796.4,594.8 796.4,576.8 828.4,560.8" fill="#3A2A2D" opacity="0.8"></polygon>
+</g>
+<g class="bld" data-key="pasar">
+<polygon points="742,634 678,666 678,628 742,596" fill="#EADFE1"></polygon>
+<polygon points="607.6,630.8 678,666 678,628 607.6,592.8" fill="#FFFFFF"></polygon>
+<polygon points="671.6,560.8 742,596 678,628 607.6,592.8" fill="#7E2430"></polygon>
+<polygon points="615.6,634.8 670,662 670,638 615.6,610.8" fill="#3A2A2D"></polygon>
+<line x1="642.8" y1="648.4" x2="642.8" y2="624.4" class="thin" stroke="#7A6A6D"></line>
+<polygon points="614,604 671.6,632.8 671.6,623.8 614,595" fill="#B3263A"></polygon>
+<text transform="matrix(0.894,0.447,0,1,642.8,616.9)" class="sign mid" fill="#F0CF7A">NO. 25</text>
+<polygon points="726,630 694,646 694,628 726,612" fill="#3A2A2D" opacity="0.8"></polygon>
+</g>
+<g class="bld" data-key="margonda">
+<line x1="137.2" y1="398.8" x2="137.2" y2="368.8" class="post" stroke="#5B4A3A"></line>
+<rect x="91.2" y="332.8" width="92" height="36" rx="6" fill="#FFFFFF" stroke="#BDB7AE" class="post" data-pill="margonda"></rect>
+<text x="137.2" y="348.8" class="bname mid" fill="#2B2824" data-fg="margonda">Margonda</text>
+<text x="137.2" y="361.8" class="bsub mid" fill="#2B2824" data-fg="margonda">Q2 2027</text>
+</g>
+<g class="bld" data-key="pim3">
+<line x1="220.4" y1="440.4" x2="220.4" y2="418.4" class="post" stroke="#5B4A3A"></line>
+<rect x="174.4" y="382.4" width="92" height="36" rx="6" fill="#FFFFFF" stroke="#BDB7AE" class="post" data-pill="pim3"></rect>
+<text x="220.4" y="398.4" class="bname mid" fill="#2B2824" data-fg="pim3">PIM3</text>
+<text x="220.4" y="411.4" class="bsub mid" fill="#2B2824" data-fg="pim3">Pending</text>
+</g>
+<g class="bld" data-key="ck">
+<line x1="580" y1="151" x2="500.4" y2="211.2" class="lead" stroke="#2B2824"></line>
+<circle cx="500.4" cy="211.2" r="3" fill="#2B2824"></circle>
+<g transform="translate(580,151)" data-badge="ck">
+<rect x="-78.5" y="-15" width="157" height="30" rx="15" fill="#FFFFFF" stroke="#BDB7AE" class="pillr" data-pill="ck"></rect>
+<circle cx="-62.5" cy="0" r="5" fill="#BDB7AE" data-dot="ck"></circle>
+<text x="-50.5" y="5" class="btxt" fill="#2B2824" data-fg="ck"><tspan class="bname">CK</tspan><tspan data-sub="ck"> · …</tspan></text>
+</g>
+</g>
+<g class="bld" data-key="hq">
+<line x1="669" y1="194" x2="658.8" y2="243.6" class="lead" stroke="#2B2824"></line>
+<circle cx="658.8" cy="243.6" r="3" fill="#2B2824"></circle>
+<g transform="translate(669,194)" data-badge="hq">
+<rect x="-75" y="-15" width="150" height="30" rx="15" fill="#FFFFFF" stroke="#BDB7AE" class="pillr" data-pill="hq"></rect>
+<circle cx="-59" cy="0" r="5" fill="#BDB7AE" data-dot="hq"></circle>
+<text x="-47" y="5" class="btxt" fill="#2B2824" data-fg="hq"><tspan class="bname">HQ</tspan><tspan data-sub="hq"> · …</tspan></text>
+</g>
+</g>
+<g class="bld" data-key="moi">
+<line x1="297" y1="215" x2="297.2" y2="285.2" class="lead" stroke="#2B2824"></line>
+<circle cx="297.2" cy="285.2" r="3" fill="#2B2824"></circle>
+<g transform="translate(297,215)" data-badge="moi">
+<rect x="-78.5" y="-15" width="157" height="30" rx="15" fill="#FFFFFF" stroke="#BDB7AE" class="pillr" data-pill="moi"></rect>
+<circle cx="-62.5" cy="0" r="5" fill="#BDB7AE" data-dot="moi"></circle>
+<text x="-50.5" y="5" class="btxt" fill="#2B2824" data-fg="moi"><tspan class="bname">MOI</tspan><tspan data-sub="moi"> · …</tspan></text>
+</g>
+</g>
+<g class="bld" data-key="bxc">
+<line x1="378" y1="447" x2="473.2" y2="376.8" class="lead" stroke="#2B2824"></line>
+<circle cx="473.2" cy="376.8" r="3" fill="#2B2824"></circle>
+<g transform="translate(378,447)" data-badge="bxc">
+<rect x="-71" y="-15" width="142" height="30" rx="15" fill="#FFFFFF" stroke="#BDB7AE" class="pillr" data-pill="bxc"></rect>
+<circle cx="-55" cy="0" r="5" fill="#BDB7AE" data-dot="bxc"></circle>
+<text x="-43" y="5" class="btxt" fill="#2B2824" data-fg="bxc"><tspan class="bname">BXC</tspan><tspan data-sub="bxc"> · …</tspan></text>
+</g>
+</g>
+<g class="bld" data-key="monty">
+<line x1="821" y1="296" x2="810.8" y2="351.2" class="lead" stroke="#2B2824"></line>
+<circle cx="810.8" cy="351.2" r="3" fill="#2B2824"></circle>
+<g transform="translate(821,296)" data-badge="monty">
+<rect x="-85.5" y="-15" width="171" height="30" rx="15" fill="#FFFFFF" stroke="#BDB7AE" class="pillr" data-pill="monty"></rect>
+<circle cx="-69.5" cy="0" r="5" fill="#BDB7AE" data-dot="monty"></circle>
+<text x="-57.5" y="5" class="btxt" fill="#2B2824" data-fg="monty"><tspan class="bname">Duri Kosambi</tspan><tspan data-sub="monty"> · …</tspan></text>
+</g>
+</g>
+<g class="bld" data-key="yonai">
+<line x1="537" y1="480" x2="537.2" y2="524.8" class="lead" stroke="#2B2824"></line>
+<circle cx="537.2" cy="524.8" r="3" fill="#2B2824"></circle>
+<g transform="translate(537,480)" data-badge="yonai">
+<rect x="-89.5" y="-15" width="179" height="30" rx="15" fill="#FFFFFF" stroke="#BDB7AE" class="pillr" data-pill="yonai"></rect>
+<circle cx="-73.5" cy="0" r="5" fill="#BDB7AE" data-dot="yonai"></circle>
+<text x="-61.5" y="5" class="btxt" fill="#2B2824" data-fg="yonai"><tspan class="bname">YO-NAI</tspan><tspan data-sub="yonai"> · …</tspan></text>
+</g>
+</g>
+<g class="bld" data-key="pim2">
+<line x1="982" y1="391" x2="982" y2="440.8" class="lead" stroke="#2B2824"></line>
+<circle cx="982" cy="440.8" r="3" fill="#2B2824"></circle>
+<g transform="translate(982,391)" data-badge="pim2">
+<rect x="-60" y="-15" width="120" height="30" rx="15" fill="#FFFFFF" stroke="#BDB7AE" class="pillr" data-pill="pim2"></rect>
+<circle cx="-44" cy="0" r="5" fill="#BDB7AE" data-dot="pim2"></circle>
+<text x="-32" y="5" class="btxt" fill="#2B2824" data-fg="pim2"><tspan class="bname">PIM 2</tspan><tspan data-sub="pim2"> · …</tspan></text>
+</g>
+</g>
+<g class="bld" data-key="kmall">
+<line x1="800" y1="457" x2="879.6" y2="492" class="lead" stroke="#2B2824"></line>
+<circle cx="879.6" cy="492" r="3" fill="#2B2824"></circle>
+<g transform="translate(800,457)" data-badge="kmall">
+<rect x="-64" y="-15" width="128" height="30" rx="15" fill="#FFFFFF" stroke="#BDB7AE" class="pillr" data-pill="kmall"></rect>
+<circle cx="-48" cy="0" r="5" fill="#BDB7AE" data-dot="kmall"></circle>
+<text x="-36" y="5" class="btxt" fill="#2B2824" data-fg="kmall"><tspan class="bname">K Mall</tspan><tspan data-sub="kmall"> · …</tspan></text>
+</g>
+</g>
+<g class="bld" data-key="alsut">
+<line x1="682" y1="513" x2="777.2" y2="543.2" class="lead" stroke="#2B2824"></line>
+<circle cx="777.2" cy="543.2" r="3" fill="#2B2824"></circle>
+<g transform="translate(682,513)" data-badge="alsut">
+<rect x="-82" y="-15" width="164" height="30" rx="15" fill="#FFFFFF" stroke="#BDB7AE" class="pillr" data-pill="alsut"></rect>
+<circle cx="-66" cy="0" r="5" fill="#BDB7AE" data-dot="alsut"></circle>
+<text x="-54" y="5" class="btxt" fill="#2B2824" data-fg="alsut"><tspan class="bname">Alam Sutera</tspan><tspan data-sub="alsut"> · …</tspan></text>
+</g>
+</g>
+<g class="bld" data-key="pasar">
+<line x1="545" y1="609" x2="674.8" y2="594.4" class="lead" stroke="#2B2824"></line>
+<circle cx="674.8" cy="594.4" r="3" fill="#2B2824"></circle>
+<g transform="translate(545,609)" data-badge="pasar">
+<rect x="-71" y="-15" width="142" height="30" rx="15" fill="#FFFFFF" stroke="#BDB7AE" class="pillr" data-pill="pasar"></rect>
+<circle cx="-55" cy="0" r="5" fill="#BDB7AE" data-dot="pasar"></circle>
+<text x="-43" y="5" class="btxt" fill="#2B2824" data-fg="pasar"><tspan class="bname">PASARMOI</tspan><tspan data-sub="pasar"> · …</tspan></text>
+</g>
+</g>
+      </svg>
+      </div>
+      <div class="legend">
+        <div class="items">
+          <span class="i"><span class="dot" style="background:var(--ok)"></span>On track</span>
+          <span class="i"><span class="dot" style="background:var(--warn)"></span>Perlu cek</span>
+          <span class="i"><span class="dot" style="background:var(--build)"></span>Renovasi</span>
+          <span class="i"><span class="dot" style="background:var(--plan)"></span>Rencana / pra-launch</span>
+          <span class="i"><span class="dot" style="background:var(--err)"></span>Gagal baca data</span>
+        </div>
+        <span>Klik gedung atau papan untuk lihat detail (di HP, geser peta ke samping)</span>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="panel" id="panel" aria-live="polite"></div>
+      <nav class="list" id="list" aria-label="Semua lokasi"></nav>
+    </aside>
+  </div>
+
+  <p class="note">Data dibaca langsung dari spreadsheet tiap brand (read-only) dan diperbarui otomatis tiap 2 menit. Sales outlet masuk setelah laporan closing / finance diisi; kalau hari ini belum ada, yang tampil laporan kemarin.</p>
+</div>
+
+<script>
+/* ====== KONFIGURASI ======
+ * API_URL otomatis diambil dari index.html Ops Hub (repo yang sama).
+ * Kalau gagal, isi manual di bawah dengan URL Web App Apps Script (berakhiran /exec). */
+const API_URL_OVERRIDE = '';
+const REFRESH_MS = 120000;
+
+const LS = {token: 'opshub.token'};
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const lsDel = k => { try { localStorage.removeItem(k); } catch (e) {} };
+
+const BRANDS = {
+  soya:  {name: 'SOYA SUKA', fill: '#E9D5B4', edge: '#B97B51'},
+  monty: {name: 'MONTY&Co.', fill: '#F6C38E', edge: '#D96F1E'},
+  no25:  {name: 'No. 25',    fill: '#F8CFD8', edge: '#B3263A'},
+  yonai: {name: 'YO-NAI',    fill: '#FFFFFF', edge: '#8A847C'}
+};
+const FALLBACK_LINKS = {
+  'ss-app': 'https://soyasukaapp.vercel.app/', 'ck-app': 'https://soyasukack.vercel.app/',
+  'mc-app': 'https://montynco.vercel.app/', 'n25-app': 'https://no25indonesia.vercel.app/', hub: '/index.html'
+};
+const LOCS = {
+  moi:      {b: 'soya', short: 'MOI', name: 'SOYA SUKA MOI', kind: 'Outlet · Mall of Indonesia', link: 'ss-app', app: 'Buka SoyaSuka Dashboard', src: 'REPORT_SALES · WASTAGE · ABSENSI (spreadsheet MOI)'},
+  bxc:      {b: 'soya', short: 'BXC', name: 'SOYA SUKA BXC', kind: 'Outlet · Bintaro Xchange', link: 'ss-app', app: 'Buka SoyaSuka Dashboard', src: 'Spreadsheet BXC (otomatis aktif saat laporan pertama masuk)'},
+  ck:       {b: 'soya', short: 'Central Kitchen', name: 'Central Kitchen', kind: 'Produksi · Kebon Jeruk', link: 'ck-app', app: 'Buka CK Dashboard', src: 'Spreadsheet CK (absensi, wastage, hasil produksi) + surat jalan & invoice'},
+  hq:       {b: 'soya', short: 'HQ', name: 'HQ SOYA SUKA', kind: 'Kantor pusat', link: 'hub', app: 'Buka daftar link', src: 'Ringkasan approval MOI, BXC dan CK'},
+  margonda: {b: 'soya', short: 'Margonda', name: 'Ruang Margonda', kind: 'Kandidat store ke-3', static: {status: 'plan', label: 'Desain', headline: 'Target buka Q2 2027', metrics: [['Tahap', 'Desain'], ['Target buka', 'Q2 2027'], ['Term partnership', 'Belum dibahas']]}, src: 'Pipeline ekspansi (manual)'},
+  pim3:     {b: 'soya', short: 'PIM3', name: 'PIM3', kind: 'Kandidat store ke-4', static: {status: 'plan', label: 'Pending', headline: '±90 m² di sebelah Teazzi', metrics: [['Luas', '±90 m²'], ['Status', 'Menunggu keputusan']]}, src: 'Pipeline ekspansi (manual)'},
+  monty:    {b: 'monty', short: 'Duri Kosambi', name: 'MONTY&Co. Duri Kosambi', kind: 'Outlet', link: 'mc-app', app: 'Buka MONTY&Co. app', src: 'Sales Report DK · WASTAGE_LOG · ABSENSI'},
+  pim2:     {b: 'no25', short: 'PIM 2', name: 'No. 25 Puri Indah Mall 2', kind: 'Outlet', link: 'n25-app', app: 'Buka No. 25 app', src: 'Sheet sales finance Puri · WASTAGE_PURI'},
+  kmall:    {b: 'no25', short: 'K Mall', name: 'No. 25 K Mall', kind: 'Outlet · K Mall Menara Jakarta', link: 'n25-app', app: 'Buka No. 25 app', src: 'Sheet sales finance K Mall · WASTAGE_KMALL'},
+  alsut:    {b: 'no25', short: 'Alam Sutera', name: 'No. 25 Alam Sutera', kind: 'Outlet · Living World Alam Sutera', link: 'n25-app', app: 'Buka No. 25 app', src: 'Sheet sales finance LWAS · WASTAGE_LWAS'},
+  pasar:    {b: 'no25', short: 'PASARMOI', name: 'No. 25 PASARMOI', kind: 'Outlet · Mall of Indonesia', link: 'n25-app', app: 'Buka No. 25 app', src: 'Sheet sales finance PASARMOI (Pawoon + Grab + Gojek) · WASTAGE_PASARMOI'},
+  yonai:    {b: 'yonai', short: 'YO-NAI', name: 'YO-NAI', kind: 'Brand pra-launch', static: {status: 'plan', label: 'Pra-launch', headline: 'Go-to-market: booth mall, lalu B2B', metrics: [['Dapur', 'Ruko CK', 'berbagi 50/50 dengan SOYA SUKA'], ['Channel awal', 'Booth mall', 'lalu B2B'], ['Web app', 'Sedang dibangun']]}, src: 'Belum ada data operasional'}
+};
+const ORDER = {soya: ['moi', 'bxc', 'ck', 'hq', 'margonda', 'pim3'], monty: ['monty'], no25: ['pim2', 'kmall', 'alsut', 'pasar'], yonai: ['yonai']};
+const OUTLETS = ['moi', 'bxc', 'monty', 'pim2', 'kmall', 'alsut', 'pasar'];
+const ST = {
+  ok: {label: 'On track', c: 'var(--ok)', fg: 'var(--ok-fg)', bg: 'var(--ok-bg)'},
+  warn: {label: 'Perlu cek', c: 'var(--warn)', fg: 'var(--warn-fg)', bg: 'var(--warn-bg)'},
+  build: {label: 'Renovasi', c: 'var(--build)', fg: 'var(--build-fg)', bg: 'var(--build-bg)'},
+  plan: {label: 'Rencana', c: 'var(--plan)', fg: 'var(--plan-fg)', bg: 'var(--plan-bg)'},
+  err: {label: 'Gagal baca', c: 'var(--err)', fg: 'var(--err-fg)', bg: 'var(--err-bg)'},
+  load: {label: 'Memuat…', c: '#BDB7AE', fg: 'var(--muted)', bg: 'var(--soft)'}
+};
+const SOLID = {ok: '#2F8A57', warn: '#D9952B', build: '#3F74A3', plan: '#8C7F72', err: '#B03A2E', load: '#BDB7AE'};
+
+let API_URL = API_URL_OVERRIDE;
+let token = lsGet(LS.token);
+let data = null;
+let selected = 'moi';
+let timer = null;
+let loading = false;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const rp = n => 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
+function rpShort(n) {
+  n = n || 0;
+  if (n >= 1e9) return 'Rp ' + (n / 1e9).toLocaleString('id-ID', {maximumFractionDigits: 1}) + ' M';
+  if (n >= 1e6) return 'Rp ' + (n / 1e6).toLocaleString('id-ID', {maximumFractionDigits: 1}) + ' jt';
+  if (n >= 1e3) return 'Rp ' + Math.round(n / 1e3).toLocaleString('id-ID') + ' rb';
+  return 'Rp ' + Math.round(n);
+}
+function dayLabel(d) {
+  if (!d || !data) return '';
+  if (d === data.today) return 'hari ini';
+  if (d === data.yesterday) return 'kemarin';
+  const [y, m, dd] = d.split('-');
+  return Number(dd) + '/' + Number(m);
+}
+function show(id) { ['scrSetup', 'scrLogin', 'scrApp'].forEach(s => { $('#' + s).hidden = s !== id; }); }
+
+/* ====== API ====== */
+async function api(action, payload = {}) {
+  let res;
+  try {
+    res = await fetch(API_URL, {method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify({action, token, ...payload})});
+  } catch (e) { throw new Error('Tidak bisa terhubung ke server. Cek koneksi internet.'); }
+  let out;
+  try { out = await res.json(); } catch (e) { throw new Error('Respons server tidak valid.'); }
+  if (!out.ok) {
+    const err = new Error(out.message || out.error);
+    if (out.error === 'AUTH') { err.auth = true; signOut('Sesi habis. Masukkan PIN lagi.'); }
+    if (out.error === 'BAD_ACTION') err.message = 'Backend Ops Hub belum punya fitur peta. Cek langkah pasang (tambah case \'map\' di Code.gs, lalu deploy versi baru).';
+    throw err;
+  }
+  return out;
+}
+
+async function findApiUrl() {
+  if (API_URL) return API_URL;
+  try {
+    const txt = await (await fetch('/index.html', {cache: 'no-store'})).text();
+    const m = txt.match(/const\s+API_URL\s*=\s*['"](https:\/\/script\.google\.com\/macros\/s\/[^'"]+\/exec)['"]/);
+    if (m) API_URL = m[1];
+  } catch (e) {}
+  return API_URL;
+}
+
+/* ====== Auth ====== */
+async function boot() {
+  await findApiUrl();
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(API_URL)) return show('scrSetup');
+  if (!token) { show('scrLogin'); $('#pin').focus(); return; }
+  show('scrApp');
+  renderAll();
+  load(false);
+  clearInterval(timer);
+  timer = setInterval(() => { if (document.visibilityState === 'visible') load(false); }, REFRESH_MS);
+}
+
+function signOut(msg) {
+  token = null; data = null;
+  lsDel(LS.token);
+  clearInterval(timer);
+  show('scrLogin');
+  $('#pin').value = '';
+  $('#loginMsg').textContent = msg || '';
+  $('#pin').focus();
+}
+
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pin = $('#pin').value.trim();
+  if (!pin) { $('#loginMsg').textContent = 'Masukkan PIN dulu.'; return; }
+  $('#loginBtn').disabled = true; $('#loginMsg').textContent = '';
+  try {
+    const out = await api('login', {pin});
+    token = out.token; lsSet(LS.token, token);
+    boot();
+  } catch (err) { $('#loginMsg').textContent = err.message; }
+  finally { $('#loginBtn').disabled = false; }
+});
+$('#logoutBtn').addEventListener('click', () => { api('logout').catch(() => {}); signOut(''); });
+$('#refreshBtn').addEventListener('click', () => load(true));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && data && Date.now() - data.builtAt > REFRESH_MS) load(false);
+});
+
+async function load(force) {
+  if (loading) return;
+  loading = true;
+  $('#refreshBtn').disabled = true;
+  if (!data) $('#stamp').textContent = 'Memuat data live… (bisa 10–20 detik)';
+  try {
+    const out = await api('map', {force: !!force});
+    data = out.map;
+    $('#banner').hidden = true;
+    renderAll();
+  } catch (err) {
+    if (!err.auth) { $('#banner').textContent = err.message; $('#banner').hidden = false; $('#stamp').textContent = data ? stampText() : 'Gagal memuat'; }
+  } finally {
+    loading = false;
+    $('#refreshBtn').disabled = false;
+  }
+}
+function stampText() {
+  if (!data) return '';
+  const t = data.asOf.slice(11, 16);
+  return 'Update ' + t + ' · otomatis tiap 2 menit';
+}
+
+/* ====== Derive view model ====== */
+function loc(id) { return data && data.locs ? data.locs[id] : null; }
+function statusOf(id) {
+  const meta = LOCS[id];
+  if (meta.static) return meta.static.status;
+  const l = loc(id);
+  if (!l) return 'load';
+  return l.status || 'ok';
+}
+function statusLabel(id) {
+  const meta = LOCS[id], s = statusOf(id);
+  if (meta.static) return meta.static.label;
+  return ST[s].label;
+}
+function badgeSub(id) {
+  const meta = LOCS[id];
+  if (id === 'yonai') return 'pra-launch';
+  if (meta.static) return '';
+  const l = loc(id);
+  if (!l) return '…';
+  if (l.status === 'err') return 'gagal baca';
+  if (l.kind === 'build') return 'H-' + (l.notes.daysToOpen ?? '?') + ' buka';
+  if (id === 'ck') return (l.dos ? l.dos.today : 0) + ' DO hari ini';
+  if (id === 'hq') return (l.appr ? l.appr.total : 0) + ' approval';
+  const s = l.sales;
+  if (!s || s.missing) return 'belum lapor';
+  const when = s.date === data.today ? '' : ' (kmrn)';
+  return (s.pct !== null && s.pct !== undefined ? s.pct + '%' : rpShort(s.value)) + when;
+}
+function linkFor(id) {
+  const key = LOCS[id].link;
+  if (!key) return '';
+  if (key === 'hub') return FALLBACK_LINKS.hub;
+  return (data && data.links && data.links[key]) || FALLBACK_LINKS[key] || '';
+}
+
+/* ====== Render: map ====== */
+function renderMap() {
+  const svg = $('#map');
+  Object.keys(LOCS).forEach(id => {
+    const s = statusOf(id), on = id === selected;
+    svg.querySelectorAll('[data-hl="' + id + '"]').forEach(el => el.setAttribute('opacity', on ? '1' : '0'));
+    svg.querySelectorAll('[data-pill="' + id + '"]').forEach(el => {
+      el.setAttribute('fill', on ? '#2B2824' : '#FFFFFF');
+      el.setAttribute('stroke', on ? '#2B2824' : '#BDB7AE');
+    });
+    svg.querySelectorAll('[data-fg="' + id + '"]').forEach(el => el.setAttribute('fill', on ? '#FFFFFF' : '#2B2824'));
+    svg.querySelectorAll('[data-dot="' + id + '"]').forEach(el => el.setAttribute('fill', SOLID[s]));
+    const sub = svg.querySelector('[data-sub="' + id + '"]');
+    if (sub) {
+      sub.textContent = ' · ' + badgeSub(id);
+      fitBadge(svg.querySelector('[data-badge="' + id + '"]'));
+    }
+  });
+  const ck = loc('ck');
+  svg.classList.toggle('no-do', !!(ck && ck.dos && ck.dos.today === 0));
+}
+function fitBadge(g) {
+  if (!g) return;
+  const text = g.querySelector('text'), rect = g.querySelector('rect'), dot = g.querySelector('circle');
+  let w;
+  try { w = Math.ceil(text.getComputedTextLength()) + 44; } catch (e) { w = 140; }
+  rect.setAttribute('x', -w / 2); rect.setAttribute('width', w);
+  dot.setAttribute('cx', -w / 2 + 16);
+  text.setAttribute('x', -w / 2 + 28);
+}
+
+/* ====== Render: KPI ====== */
+function renderKpis() {
+  const sumSales = ids => ids.reduce((a, id) => { const l = loc(id); return a + (l && l.sales && !l.sales.missing ? l.sales.value : 0); }, 0);
+  const reported = ids => ids.filter(id => { const l = loc(id); return l && l.sales && !l.sales.missing; }).length;
+  const today = ids => ids.filter(id => { const l = loc(id); return l && l.sales && l.sales.date === data.today; }).length;
+  const has = !!data;
+  const alerts = has ? Object.values(data.locs).reduce((a, l) => a + (l.alerts || []).filter(x => x.lvl === 'warn').length, 0) : 0;
+  const appr = has ? ['moi', 'bxc', 'ck', 'monty'].reduce((a, id) => a + ((loc(id) && loc(id).appr) ? loc(id).appr.total : 0), 0) : 0;
+  const open = OUTLETS.filter(id => { const l = loc(id); return l && l.kind !== 'build'; });
+  const v = n => has ? rpShort(n) : '—';
+  const tiles = [
+    {dark: true, l: 'Sales laporan terakhir', v: v(sumSales(OUTLETS)), s: has ? today(OUTLETS) + ' dari ' + open.length + ' outlet sudah lapor hari ini · ' + alerts + ' alert · ' + appr + ' approval' : 'memuat…'},
+    {b: 'soya', v: v(sumSales(['moi', 'bxc'])), s: has && loc('bxc') && loc('bxc').kind === 'build' ? 'MOI · BXC buka ' + fmtDate(loc('bxc').notes.openDate) : 'MOI · BXC'},
+    {b: 'monty', v: v(sumSales(['monty'])), s: 'Duri Kosambi'},
+    {b: 'no25', v: v(sumSales(['pim2', 'kmall', 'alsut', 'pasar'])), s: has ? reported(['pim2', 'kmall', 'alsut', 'pasar']) + ' dari 4 outlet ada data' : '4 outlet'},
+    {b: 'yonai', v: 'Pra-launch', s: 'booth mall, lalu B2B'}
+  ];
+  $('#kpis').innerHTML = tiles.map(t => {
+    const br = t.b ? BRANDS[t.b] : null;
+    const label = br ? '<span class="chip" style="background:' + br.fill + ';border-color:' + br.edge + '"></span>' + esc(br.name) : esc(t.l);
+    return '<div class="kpi' + (t.dark ? ' dark' : '') + '"><div class="l">' + label + '</div><div class="v">' + esc(t.v) + '</div><div class="s">' + esc(t.s) + '</div></div>';
+  }).join('');
+}
+function fmtDate(d) {
+  if (!d) return '';
+  const mon = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const [y, m, dd] = d.split('-').map(Number);
+  return dd + ' ' + mon[m - 1];
+}
+
+/* ====== Render: panel ====== */
+function metric(label, value, sub, pct, color) {
+  return '<div class="m"><div class="ml">' + esc(label) + '</div><div class="mv">' + esc(value) + '</div>' +
+    (sub ? '<div class="ms">' + esc(sub) + '</div>' : '') +
+    (pct !== undefined && pct !== null ? '<div class="bar"><i style="width:' + Math.min(100, Math.max(0, pct)) + '%;background:' + color + '"></i></div>' : '') + '</div>';
+}
+function outletMetrics(l, color) {
+  const out = [];
+  const s = l.sales, n = l.notes || {};
+  if (!s || s.missing) out.push(metric('Sales', 'Belum ada laporan', 'hari ini maupun kemarin'));
+  else out.push(metric('Sales ' + dayLabel(s.date), rp(s.value), s.target ? 'target ' + rp(s.target) + ' · ' + s.pct + '%' : 'target belum diisi (tab TARGET di OPS_HUB)', s.target ? s.pct : null, color));
+  out.push(metric('Sales bulan ini (MTD)', s ? rp(s.mtd) : '—', s && s.mtdDays ? s.mtdDays + ' hari ada laporan' : ''));
+  if (n.noBills) out.push(metric('Jumlah bill', '—', 'tidak dicatat di sheet sales'));
+  else out.push(metric('Jumlah bill', s && !s.missing ? String(s.bills) : '—', s && s.avg ? 'rata-rata ' + rp(s.avg) : ''));
+  out.push(wasteMetric(l.waste));
+  if (n.noCrew) out.push(metric('Crew on shift', '—', 'absensi belum di sheet'));
+  else out.push(crewMetric(l.crew));
+  if (n.noAppr) out.push(metric('Approval menunggu', '—', 'belum ada di sheet'));
+  else out.push(apprMetric(l.appr));
+  return out;
+}
+function wasteMetric(w) {
+  if (!w || !w.count) return metric('Wastage', 'Rp 0', 'belum ada input hari ini/kemarin');
+  let sub = w.count + ' entri ' + dayLabel(w.date);
+  if (w.pctOfSales !== undefined) sub += ' · ' + w.pctOfSales + '% dari sales';
+  return metric('Wastage ' + dayLabel(w.date), rp(w.rp), sub);
+}
+function crewMetric(c) {
+  if (!c) return metric('Crew on shift', '—', '');
+  return metric('Crew on shift', String(c.onShift), c.present + ' orang clock-in hari ini');
+}
+function apprMetric(a) {
+  if (!a) return metric('Approval menunggu', '—', '');
+  const parts = [];
+  if (a.izin) parts.push(a.izin + ' izin');
+  if (a.lembur) parts.push(a.lembur + ' lembur');
+  if (a.koreksi) parts.push(a.koreksi + ' koreksi');
+  return metric('Approval menunggu', String(a.total), parts.join(' · ') || 'tidak ada');
+}
+
+function renderPanel() {
+  const id = selected, meta = LOCS[id], br = BRANDS[meta.b];
+  const s = statusOf(id), st = ST[s];
+  const l = loc(id);
+  let headline = '', metrics = [], alerts = [];
+
+  if (meta.static) {
+    headline = meta.static.headline;
+    metrics = meta.static.metrics.map(m => metric(m[0], m[1], m[2] || ''));
+  } else if (!l) {
+    headline = 'Memuat data…';
+  } else if (l.status === 'err') {
+    headline = 'Data lokasi ini gagal dibaca';
+    alerts = l.alerts || [];
+  } else if (l.kind === 'build') {
+    headline = 'Target kontraktor selesai ' + fmtDate(l.notes.openDate);
+    metrics = [metric('Menuju buka', 'H-' + l.notes.daysToOpen, fmtDate(l.notes.openDate) + ' 2026'),
+      metric('Sales', 'Belum ada', 'muncul otomatis saat laporan pertama masuk'), apprMetric(l.appr)];
+    alerts = l.alerts || [];
+  } else if (id === 'ck') {
+    const d = l.dos || {}, p = l.prod || {}, inv = l.invoice || {};
+    headline = (d.today || 0) + ' DO hari ini' + (p.count ? ' · ' + p.count + ' item diproduksi ' + dayLabel(p.date) : '');
+    metrics = [
+      metric('DO hari ini', String(d.today || 0), (d.stores || []).join(', ') || 'belum ada surat jalan'),
+      metric('Hasil produksi ' + dayLabel(p.date), p.count ? p.count + ' item' : '—', (p.top || []).map(t => t.name + ' ' + Number(t.qty).toLocaleString('id-ID') + ' ' + t.unit.toLowerCase()).join(', ')),
+      wasteMetric(l.waste), crewMetric(l.crew), apprMetric(l.appr),
+      metric('Invoice belum lunas', String(inv.open || 0), inv.open ? rp(inv.total) + ' · ' + d.unbilled + ' surat jalan belum ditagih' : (d.unbilled ? d.unbilled + ' surat jalan belum ditagih' : 'semua lunas'))
+    ];
+    alerts = l.alerts || [];
+  } else if (id === 'hq') {
+    headline = (l.appr ? l.appr.total : 0) + ' approval menunggu di SOYA SUKA';
+    metrics = [metric('Approval menunggu', String(l.appr ? l.appr.total : 0), 'MOI, BXC dan CK')]
+      .concat((l.breakdown || []).map(b => metric(b.name, String(b.total), [b.izin ? b.izin + ' izin' : '', b.lembur ? b.lembur + ' lembur' : '', b.koreksi ? b.koreksi + ' koreksi' : ''].filter(Boolean).join(' · ') || 'tidak ada')));
+    alerts = l.alerts || [];
+  } else {
+    const sl = l.sales;
+    headline = !sl || sl.missing ? 'Belum ada laporan sales' : (sl.pct !== null ? 'Sales ' + sl.pct + '% dari target ' + dayLabel(sl.date) : 'Sales ' + dayLabel(sl.date) + ' ' + rpShort(sl.value));
+    metrics = outletMetrics(l, st.c);
+    alerts = l.alerts || [];
+  }
+
+  const href = linkFor(id);
+  const app = href && meta.app
+    ? '<a class="btn primary" href="' + esc(href) + '"' + (href.startsWith('http') ? ' target="_blank" rel="noopener"' : '') + '>' + esc(meta.app) + ' <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>'
+    : '<span class="src">' + (id === 'yonai' ? 'App sedang dibangun' : 'Belum ada app untuk lokasi ini') + '</span>';
+
+  $('#panel').innerHTML =
+    '<div><div class="kind"><span class="chip" style="background:' + br.fill + ';border-color:' + br.edge + '"></span><span>' + esc(br.name + ' · ' + meta.kind) + '</span></div>' +
+    '<h2>' + esc(meta.name) + '</h2>' +
+    '<div class="headline"><span class="pill" style="background:' + st.bg + ';color:' + st.fg + '"><span class="dot" style="width:8px;height:8px;background:' + st.c + '"></span>' + esc(statusLabel(id)) + '</span><span>' + esc(headline) + '</span></div></div>' +
+    (metrics.length ? '<div class="metrics">' + metrics.join('') + '</div>' : '') +
+    '<div class="alerts"><h3 class="h3">Perlu perhatian</h3>' +
+    (alerts.length ? alerts.map(a => '<div class="al"><span class="dot" style="background:' + (a.lvl === 'warn' ? 'var(--warn)' : 'var(--info)') + '"></span><span>' + esc(a.text) + '</span></div>').join('') : '<div class="al" style="color:var(--muted)">Tidak ada alert.</div>') +
+    '</div><div class="foot"><div class="src">Sumber data: ' + esc(meta.src) + '</div>' + app + '</div>';
+}
+
+/* ====== Render: list ====== */
+function renderList() {
+  $('#list').innerHTML = '<h3 class="h3" style="margin:4px 8px 0">Semua lokasi</h3>' + Object.keys(ORDER).map(b => {
+    const br = BRANDS[b];
+    return '<div class="grp"><div class="gh"><span class="chip" style="background:' + br.fill + ';border-color:' + br.edge + '"></span>' + esc(br.name) + '</div>' +
+      ORDER[b].map(id => '<button type="button" class="loc" data-pick="' + id + '" aria-current="' + (id === selected) + '"><span class="dot" style="width:10px;height:10px;background:' + SOLID[statusOf(id)] + '"></span><span class="n">' + esc(LOCS[id].short) + '</span><span class="st">' + esc(statusLabel(id)) + '</span></button>').join('') + '</div>';
+  }).join('');
+}
+
+function renderAll() {
+  if (data) $('#stamp').textContent = stampText();
+  renderKpis(); renderMap(); renderPanel(); renderList();
+}
+
+function pick(id) { if (!LOCS[id]) return; selected = id; renderMap(); renderPanel(); renderList(); }
+$('#list').addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (b) pick(b.dataset.pick); });
+$('#map').addEventListener('click', e => { const g = e.target.closest('[data-key]'); if (g) pick(g.dataset.key); });
+
+boot();
+</script>
+</body>
+</html>
