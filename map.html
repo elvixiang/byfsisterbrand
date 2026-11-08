@@ -163,6 +163,7 @@ button{font:inherit}
     <div class="actions">
       <span class="stamp" id="stamp">Memuat data…</span>
       <button class="btn" type="button" id="refreshBtn">Refresh</button>
+      <a class="btn" href="https://claude.ai/artifact/BA24DDHrJ3rTBEvt1riVTb" id="kantorLink" target="_blank" rel="noopener">Masuk kantor</a>
       <a class="btn" href="/index.html" id="hubLink">Daftar link</a>
       <button class="btn" type="button" id="logoutBtn">Keluar</button>
     </div>
@@ -631,6 +632,7 @@ const BRANDS = {
   no25:  {name: 'No. 25',    fill: '#F8CFD8', edge: '#B3263A'},
   yonai: {name: 'YO-NAI',    fill: '#FFFFFF', edge: '#8A847C'}
 };
+const KANTOR_URL = 'https://claude.ai/artifact/BA24DDHrJ3rTBEvt1riVTb';
 const FALLBACK_LINKS = {
   'ss-app': 'https://soyasukaapp.vercel.app/', 'ck-app': 'https://soyasukack.vercel.app/',
   'mc-app': 'https://montynco.vercel.app/', 'n25-app': 'https://no25indonesia.vercel.app/', hub: '/index.html'
@@ -959,6 +961,7 @@ function renderPanel() {
   const app = href && meta.app
     ? '<a class="btn primary" href="' + esc(href) + '"' + (href.startsWith('http') ? ' target="_blank" rel="noopener"' : '') + '>' + esc(meta.app) + ' <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>'
     : '<span class="src">' + (id === 'yonai' ? 'App sedang dibangun' : 'Belum ada app untuk lokasi ini') + '</span>';
+  const kantor = id === 'hq' ? '<a class="btn" id="kantorPanel" href="' + KANTOR_URL + '" target="_blank" rel="noopener">Masuk kantor agent</a>' : '';
 
   $('#panel').innerHTML =
     '<div><div class="kind"><span class="chip" style="background:' + br.fill + ';border-color:' + br.edge + '"></span><span>' + esc(br.name + ' · ' + meta.kind) + '</span></div>' +
@@ -967,7 +970,7 @@ function renderPanel() {
     (metrics.length ? '<div class="metrics">' + metrics.join('') + '</div>' : '') +
     '<div class="alerts"><h3 class="h3">Perlu perhatian</h3>' +
     (alerts.length ? alerts.map(a => '<div class="al"><span class="dot" style="background:' + (a.lvl === 'warn' ? 'var(--warn)' : 'var(--info)') + '"></span><span>' + esc(a.text) + '</span></div>').join('') : '<div class="al" style="color:var(--muted)">Tidak ada alert.</div>') +
-    '</div><div class="foot"><div class="src">Sumber data: ' + esc(meta.src) + '</div>' + app + '</div>';
+    '</div><div class="foot"><div class="src">Sumber data: ' + esc(meta.src) + '</div><div style="display:flex;gap:8px;flex-wrap:wrap">' + kantor + app + '</div></div>';
 }
 
 /* ====== Render: list ====== */
