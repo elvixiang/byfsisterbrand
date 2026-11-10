@@ -90,6 +90,63 @@ button{font:inherit}
 .loc .n{flex:1 1 auto;min-width:0;font-weight:700}
 .loc .st{font-size:12px;color:var(--muted)}
 .note{margin:0;font-size:13px;line-height:1.5;color:var(--muted)}
+.periodbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 14px}
+.periodbar label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.field{min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;font-size:14px;max-width:100%}
+.pinfo{font-size:13px;color:var(--muted);flex:1 1 220px}
+.banner.info{background:var(--build-bg);color:var(--build-fg)}
+.tablecard{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.rank{width:100%;border-collapse:collapse;font-size:14px;min-width:620px;font-variant-numeric:tabular-nums}
+table.rank th{font-size:12px;font-weight:700;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.rank td{padding:10px;border-bottom:1px solid #ECE9E4;white-space:nowrap}
+table.rank .num{text-align:right}
+table.rank tbody tr[data-pick]{cursor:pointer}
+table.rank tbody tr[data-pick]:hover{background:var(--soft)}
+table.rank tr.tot td{font-weight:700;border-bottom:0}
+table.rank .chip{display:inline-block;vertical-align:-1px}
+table.rank .dot{width:8px;height:8px;vertical-align:1px}
+.muted{color:var(--muted)}
+.up{color:var(--ok-fg)}.down{color:var(--err-fg)}
+.chart{display:flex;flex-direction:column;gap:8px}
+.mix{display:flex;flex-direction:column;gap:8px}
+.mixh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--muted)}
+.mixbar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line)}
+.mixbar i{display:block;height:14px}
+.mixl{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.mixl span{display:inline-flex;align-items:center;gap:6px}
+.mixl b{color:var(--ink)}
+.mixl i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.pnl{display:flex;flex-direction:column;gap:8px}
+.pchips{display:flex;flex-wrap:wrap;gap:8px}
+.pchip{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.pchip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.pchip em{font-style:normal;font-weight:400;color:var(--warn-fg)}
+.pchip.on em{color:#F3D9A8}
+.pnlink{align-self:flex-start;margin-top:6px;padding:4px 0;border:0;background:none;color:inherit;font:inherit;font-size:12px;font-weight:700;text-decoration:underline;cursor:pointer;min-height:32px}
+.pdfdlg{width:min(1000px,calc(100vw - 32px));height:min(90vh,1100px);padding:0;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink)}
+.pdfdlg::backdrop{background:rgba(43,40,36,.55)}
+.pdfdlg[open]{display:flex;flex-direction:column}
+.pdfhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.pdfhead b{flex:1 1 200px;font-size:15px}
+.pdfbody{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+.pdfbody p{margin:0;padding:16px;font-size:14px;color:var(--muted)}
+.pdfbody p:empty{display:none}
+.pdfbody iframe{flex:1 1 auto;width:100%;border:0;min-height:0}
+.chart svg{width:100%;height:auto;display:block}
+.chart .cl{font-family:Calibri,Carlito,'Segoe UI',sans-serif;font-size:11px;fill:#6A645D}
+.clegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.clegend span{display:inline-flex;align-items:center;gap:6px}
+.clegend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.clegend i.ln{height:0;border-top:2px dashed #2B2824;border-radius:0}
+@media print{
+  body{background:#fff}
+  .actions,.periodbar .field,.periodbar button,#previewNote,.legend>span:last-child,.pnlink,.pnl,#pdfDlg{display:none!important}
+  .wrap{padding:0;gap:12px}
+  .scene,.panel,.list,.tablecard,.kpi,.periodbar{break-inside:avoid;border-color:#ddd}
+  .list{display:none}
+  .svgbox{overflow:visible}
+}
 
 /* svg */
 .dash{stroke-width:2;stroke-dasharray:8 8}
@@ -136,11 +193,11 @@ button{font:inherit}
 <section class="gate" id="scrLogin" hidden>
   <form class="card" id="loginForm" novalidate>
     <h1>Ops Map</h1>
-    <p>Masukkan PIN Ops Hub.</p>
+    <p>Masukkan PIN · Enter your PIN</p>
     <label for="pin" style="position:absolute;left:-9999px">PIN</label>
     <input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="20" required>
     <p class="msg" id="loginMsg" role="alert"></p>
-    <button class="btn primary" type="submit" id="loginBtn">Masuk</button>
+    <button class="btn primary" type="submit" id="loginBtn">Masuk · Sign in</button>
   </form>
 </section>
 
@@ -156,18 +213,32 @@ button{font:inherit}
         <polygon points="22,21 39,12.5 39,31.5 22,40" fill="#BDB7AE"></polygon>
       </svg>
       <div>
-        <div class="eyebrow">SISTER BRANDS</div>
+        <div class="eyebrow" id="eyebrow">SISTER BRANDS</div>
         <h1>Ops Map</h1>
       </div>
     </div>
     <div class="actions">
       <span class="stamp" id="stamp">Memuat data…</span>
       <button class="btn" type="button" id="refreshBtn">Refresh</button>
+      <button class="btn" type="button" id="printBtn" hidden>Print / PDF</button>
+      <button class="btn" type="button" id="previewBtn">Lihat versi bos</button>
       <a class="btn" href="https://claude.ai/artifact/BA24DDHrJ3rTBEvt1riVTb" id="kantorLink" target="_blank" rel="noopener">Masuk kantor</a>
       <a class="btn" href="/index.html" id="hubLink">Daftar link</a>
       <button class="btn" type="button" id="logoutBtn">Keluar</button>
     </div>
   </header>
+
+  <div class="banner info" id="previewNote" hidden>Ini tampilan versi bos: bahasa Inggris, tanpa tombol kantor/daftar link/app, tanpa crew &amp; approval. Bos login di halaman ini dengan PIN bos.</div>
+  <div class="periodbar" role="group" aria-label="Period">
+    <label for="period" id="periodLbl">Periode</label>
+    <select class="field" id="period"></select>
+    <input class="field" type="month" id="pMonth" aria-label="Month" hidden>
+    <input class="field" type="date" id="pFrom" aria-label="From" hidden>
+    <span id="pDash" hidden>–</span>
+    <input class="field" type="date" id="pTo" aria-label="To" hidden>
+    <button class="btn" type="button" id="pApply" hidden>Terapkan</button>
+    <span class="pinfo" id="periodInfo"></span>
+  </div>
 
   <div class="banner" id="banner" role="alert" hidden></div>
 
@@ -595,24 +666,34 @@ button{font:inherit}
       </div>
       <div class="legend">
         <div class="items">
-          <span class="i"><span class="dot" style="background:var(--ok)"></span>On track</span>
-          <span class="i"><span class="dot" style="background:var(--warn)"></span>Perlu cek</span>
-          <span class="i"><span class="dot" style="background:var(--build)"></span>Renovasi</span>
-          <span class="i"><span class="dot" style="background:var(--plan)"></span>Rencana / pra-launch</span>
-          <span class="i"><span class="dot" style="background:var(--err)"></span>Gagal baca data</span>
+          <span class="i"><span class="dot" style="background:var(--ok)"></span><span id="lgOk">On track</span></span>
+          <span class="i"><span class="dot" style="background:var(--warn)"></span><span id="lgWarn">Perlu cek</span></span>
+          <span class="i"><span class="dot" style="background:var(--build)"></span><span id="lgBuild">Renovasi</span></span>
+          <span class="i"><span class="dot" style="background:var(--plan)"></span><span id="lgPlan">Rencana / pra-launch</span></span>
+          <span class="i"><span class="dot" style="background:var(--err)"></span><span id="lgErr">Gagal baca data</span></span>
         </div>
-        <span>Klik gedung atau papan untuk lihat detail (di HP, geser peta ke samping)</span>
+        <span id="lgHint">Klik gedung atau papan untuk lihat detail (di HP, geser peta ke samping)</span>
       </div>
     </section>
 
     <aside class="side">
       <div class="panel" id="panel" aria-live="polite"></div>
-      <nav class="list" id="list" aria-label="Semua lokasi"></nav>
+      <nav class="list" id="list" aria-label="Locations"><h3 class="h3" id="listTitle" style="margin:4px 8px 0">Semua lokasi</h3><div id="listBody" style="display:flex;flex-direction:column;gap:10px"></div></nav>
     </aside>
   </div>
 
-  <p class="note">Data dibaca langsung dari spreadsheet tiap brand (read-only) dan diperbarui otomatis tiap 2 menit. Sales outlet masuk setelah laporan closing / finance diisi; kalau hari ini belum ada, yang tampil laporan kemarin.</p>
+  <section class="tablecard" id="tableCard" hidden>
+    <h3 class="h3" id="tableTitle"></h3>
+    <div class="tscroll"><table class="rank" id="table"></table></div>
+  </section>
+
+  <p class="note" id="note">Data dibaca langsung dari spreadsheet tiap brand (read-only) dan diperbarui otomatis tiap 2 menit. Sales outlet masuk setelah laporan closing / finance diisi; kalau hari ini belum ada, yang tampil laporan kemarin.</p>
 </div>
+
+<dialog class="pdfdlg" id="pdfDlg" aria-labelledby="pdfTitle">
+  <div class="pdfhead"><b id="pdfTitle">P&amp;L</b><a class="btn primary" id="pdfOpen" target="_blank" rel="noopener" hidden>Open</a><a class="btn" id="pdfDl" hidden>Download</a><button class="btn" type="button" id="pdfClose">Close</button></div>
+  <div class="pdfbody"><p id="pdfMsg"></p><iframe id="pdfFrame" title="P&amp;L PDF" hidden></iframe></div>
+</dialog>
 
 <script>
 /* ====== KONFIGURASI ======
@@ -621,7 +702,7 @@ button{font:inherit}
 const API_URL_OVERRIDE = '';
 const REFRESH_MS = 120000;
 
-const LS = {token: 'opshub.token'};
+const LS = {token: 'opshub.token', boss: 'opsmap.btoken'};
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 const lsDel = k => { try { localStorage.removeItem(k); } catch (e) {} };
@@ -637,70 +718,120 @@ const FALLBACK_LINKS = {
   'ss-app': 'https://soyasukaapp.vercel.app/', 'ck-app': 'https://soyasukack.vercel.app/',
   'mc-app': 'https://montynco.vercel.app/', 'n25-app': 'https://no25indonesia.vercel.app/', hub: '/index.html'
 };
+/* "en" = teks versi bos (bahasa Inggris). */
 const LOCS = {
   moi:      {b: 'soya', short: 'MOI', name: 'SOYA SUKA MOI', kind: 'Outlet · Mall of Indonesia', link: 'ss-app', app: 'Buka SoyaSuka Dashboard', src: 'REPORT_SALES · WASTAGE · ABSENSI (spreadsheet MOI)'},
   bxc:      {b: 'soya', short: 'BXC', name: 'SOYA SUKA BXC', kind: 'Outlet · Bintaro Xchange', link: 'ss-app', app: 'Buka SoyaSuka Dashboard', src: 'Spreadsheet BXC (otomatis aktif saat laporan pertama masuk)'},
-  ck:       {b: 'soya', short: 'Central Kitchen', name: 'Central Kitchen', kind: 'Produksi · Kebon Jeruk', link: 'ck-app', app: 'Buka CK Dashboard', src: 'Spreadsheet CK (absensi, wastage, hasil produksi) + surat jalan & invoice'},
-  hq:       {b: 'soya', short: 'HQ', name: 'HQ SOYA SUKA', kind: 'Kantor pusat', link: 'hub', app: 'Buka daftar link', src: 'Ringkasan approval MOI, BXC dan CK'},
-  margonda: {b: 'soya', short: 'Margonda', name: 'Ruang Margonda', kind: 'Kandidat store ke-3', static: {status: 'plan', label: 'Desain', headline: 'Target buka Q2 2027', metrics: [['Tahap', 'Desain'], ['Target buka', 'Q2 2027'], ['Term partnership', 'Belum dibahas']]}, src: 'Pipeline ekspansi (manual)'},
-  pim3:     {b: 'soya', short: 'PIM3', name: 'PIM3', kind: 'Kandidat store ke-4', static: {status: 'plan', label: 'Pending', headline: '±90 m² di sebelah Teazzi', metrics: [['Luas', '±90 m²'], ['Status', 'Menunggu keputusan']]}, src: 'Pipeline ekspansi (manual)'},
+  ck:       {b: 'soya', short: 'Central Kitchen', name: 'Central Kitchen', kind: 'Produksi · Kebon Jeruk', link: 'ck-app', app: 'Buka CK Dashboard', src: 'Spreadsheet CK (absensi, wastage, hasil produksi) + surat jalan & invoice',
+             en: {kind: 'Production · Kebon Jeruk'}},
+  hq:       {b: 'soya', short: 'HQ', name: 'HQ SOYA SUKA', kind: 'Kantor pusat', link: 'hub', app: 'Buka daftar link', src: 'Ringkasan approval MOI, BXC dan CK',
+             en: {short: 'Group overview', name: 'Group overview', kind: 'Head office · all brands'}},
+  margonda: {b: 'soya', short: 'Margonda', name: 'Ruang Margonda', kind: 'Kandidat store ke-3', src: 'Pipeline ekspansi (manual)',
+             static: {status: 'plan', label: 'Desain', headline: 'Target buka Q2 2027', metrics: [['Tahap', 'Desain'], ['Target buka', 'Q2 2027'], ['Term partnership', 'Belum dibahas']]},
+             en: {name: 'Margonda (Depok)', kind: '3rd store candidate', static: {status: 'plan', label: 'Design', headline: 'Target opening Q2 2027', metrics: [['Stage', 'Design'], ['Target opening', 'Q2 2027'], ['Partnership terms', 'To be discussed']]}}},
+  pim3:     {b: 'soya', short: 'PIM3', name: 'PIM3', kind: 'Kandidat store ke-4', src: 'Pipeline ekspansi (manual)',
+             static: {status: 'plan', label: 'Pending', headline: '±90 m² di sebelah Teazzi', metrics: [['Luas', '±90 m²'], ['Status', 'Menunggu keputusan']]},
+             en: {name: 'PIM3 (Pondok Indah Mall 3)', kind: '4th store candidate', static: {status: 'plan', label: 'Pending', headline: '±90 m² next to Teazzi', metrics: [['Size', '±90 m²'], ['Status', 'Awaiting decision']]}}},
   monty:    {b: 'monty', short: 'Duri Kosambi', name: 'MONTY&Co. Duri Kosambi', kind: 'Outlet', link: 'mc-app', app: 'Buka MONTY&Co. app', src: 'Sales Report DK · WASTAGE_LOG · ABSENSI'},
   pim2:     {b: 'no25', short: 'PIM 2', name: 'No. 25 Puri Indah Mall 2', kind: 'Outlet', link: 'n25-app', app: 'Buka No. 25 app', src: 'Sheet sales finance Puri · WASTAGE_PURI'},
   kmall:    {b: 'no25', short: 'K Mall', name: 'No. 25 K Mall', kind: 'Outlet · K Mall Menara Jakarta', link: 'n25-app', app: 'Buka No. 25 app', src: 'Sheet sales finance K Mall · WASTAGE_KMALL'},
   alsut:    {b: 'no25', short: 'Alam Sutera', name: 'No. 25 Alam Sutera', kind: 'Outlet · Living World Alam Sutera', link: 'n25-app', app: 'Buka No. 25 app', src: 'Sheet sales finance LWAS · WASTAGE_LWAS'},
   pasar:    {b: 'no25', short: 'PASARMOI', name: 'No. 25 PASARMOI', kind: 'Outlet · Mall of Indonesia', link: 'n25-app', app: 'Buka No. 25 app', src: 'Sheet sales finance PASARMOI (Pawoon + Grab + Gojek) · WASTAGE_PASARMOI'},
-  yonai:    {b: 'yonai', short: 'YO-NAI', name: 'YO-NAI', kind: 'Brand pra-launch', static: {status: 'plan', label: 'Pra-launch', headline: 'Go-to-market: booth mall, lalu B2B', metrics: [['Dapur', 'Ruko CK', 'berbagi 50/50 dengan SOYA SUKA'], ['Channel awal', 'Booth mall', 'lalu B2B'], ['Web app', 'Sedang dibangun']]}, src: 'Belum ada data operasional'}
+  yonai:    {b: 'yonai', short: 'YO-NAI', name: 'YO-NAI', kind: 'Brand pra-launch', src: 'Belum ada data operasional',
+             static: {status: 'plan', label: 'Pra-launch', headline: 'Go-to-market: booth mall, lalu B2B', metrics: [['Dapur', 'Ruko CK', 'berbagi 50/50 dengan SOYA SUKA'], ['Channel awal', 'Booth mall', 'lalu B2B'], ['Web app', 'Sedang dibangun']]},
+             en: {kind: 'Pre-launch brand', static: {status: 'plan', label: 'Pre-launch', headline: 'Go-to-market: mall booths, then B2B', metrics: [['Kitchen', 'Shared with CK', '50/50 with SOYA SUKA'], ['First channel', 'Mall booths', 'then B2B'], ['Web app', 'In development']]}}}
 };
 const ORDER = {soya: ['moi', 'bxc', 'ck', 'hq', 'margonda', 'pim3'], monty: ['monty'], no25: ['pim2', 'kmall', 'alsut', 'pasar'], yonai: ['yonai']};
 const OUTLETS = ['moi', 'bxc', 'monty', 'pim2', 'kmall', 'alsut', 'pasar'];
+const BRAND_OUTLETS = {soya: ['moi', 'bxc'], monty: ['monty'], no25: ['pim2', 'kmall', 'alsut', 'pasar']};
 const ST = {
-  ok: {label: 'On track', c: 'var(--ok)', fg: 'var(--ok-fg)', bg: 'var(--ok-bg)'},
-  warn: {label: 'Perlu cek', c: 'var(--warn)', fg: 'var(--warn-fg)', bg: 'var(--warn-bg)'},
-  build: {label: 'Renovasi', c: 'var(--build)', fg: 'var(--build-fg)', bg: 'var(--build-bg)'},
-  plan: {label: 'Rencana', c: 'var(--plan)', fg: 'var(--plan-fg)', bg: 'var(--plan-bg)'},
-  err: {label: 'Gagal baca', c: 'var(--err)', fg: 'var(--err-fg)', bg: 'var(--err-bg)'},
-  load: {label: 'Memuat…', c: '#BDB7AE', fg: 'var(--muted)', bg: 'var(--soft)'}
+  ok: {label: ['On track', 'On track'], c: 'var(--ok)', fg: 'var(--ok-fg)', bg: 'var(--ok-bg)'},
+  warn: {label: ['Perlu cek', 'Needs attention'], c: 'var(--warn)', fg: 'var(--warn-fg)', bg: 'var(--warn-bg)'},
+  build: {label: ['Renovasi', 'Opening soon'], c: 'var(--build)', fg: 'var(--build-fg)', bg: 'var(--build-bg)'},
+  plan: {label: ['Rencana', 'Pipeline'], c: 'var(--plan)', fg: 'var(--plan-fg)', bg: 'var(--plan-bg)'},
+  err: {label: ['Gagal baca', 'Data unavailable'], c: 'var(--err)', fg: 'var(--err-fg)', bg: 'var(--err-bg)'},
+  load: {label: ['Memuat…', 'Loading…'], c: '#BDB7AE', fg: 'var(--muted)', bg: 'var(--soft)'}
 };
 const SOLID = {ok: '#2F8A57', warn: '#D9952B', build: '#3F74A3', plan: '#8C7F72', err: '#B03A2E', load: '#BDB7AE'};
+const SALES_WARN = 75, WASTE_WARN = 3;
 
 let API_URL = API_URL_OVERRIDE;
-let token = lsGet(LS.token);
-let data = null;
+let role = 'admin', token = null, preview = false;
+(function () { const b = lsGet(LS.boss); if (b) { role = 'boss'; token = b; } else token = lsGet(LS.token); })();
+let data = null;          // laporan terakhir
+let pnl = null;           // daftar PDF P&L per brand (Drive)
+let range = null;         // data periode
+let rangeOk = true;       // false kalau Code.gs belum punya action mapview
+let period = {mode: 'latest', month: '', from: '', to: ''};
 let selected = 'moi';
-let timer = null;
-let loading = false;
+let timer = null, loading = false, pending = false;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
-const rp = n => 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
+const isBoss = () => role === 'boss' || preview;
+const T = (id, en) => isBoss() ? en : id;
+const loc_ = () => isBoss() ? 'en-US' : 'id-ID';
+const rp = n => 'Rp ' + Math.round(n || 0).toLocaleString(loc_());
 function rpShort(n) {
   n = n || 0;
-  if (n >= 1e9) return 'Rp ' + (n / 1e9).toLocaleString('id-ID', {maximumFractionDigits: 1}) + ' M';
-  if (n >= 1e6) return 'Rp ' + (n / 1e6).toLocaleString('id-ID', {maximumFractionDigits: 1}) + ' jt';
-  if (n >= 1e3) return 'Rp ' + Math.round(n / 1e3).toLocaleString('id-ID') + ' rb';
+  const f = (x, d) => x.toLocaleString(loc_(), {maximumFractionDigits: d});
+  if (isBoss()) {
+    if (n >= 1e9) return 'Rp ' + f(n / 1e9, 2) + 'B';
+    if (n >= 1e6) return 'Rp ' + f(n / 1e6, 1) + 'M';
+    if (n >= 1e3) return 'Rp ' + f(Math.round(n / 1e3), 0) + 'K';
+    return 'Rp ' + Math.round(n);
+  }
+  if (n >= 1e9) return 'Rp ' + f(n / 1e9, 1) + ' M';
+  if (n >= 1e6) return 'Rp ' + f(n / 1e6, 1) + ' jt';
+  if (n >= 1e3) return 'Rp ' + f(Math.round(n / 1e3), 0) + ' rb';
   return 'Rp ' + Math.round(n);
+}
+const signed = n => (n > 0 ? '+' : '') + n + '%';
+const MON = {id: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'], en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']};
+const DOW = {id: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'], en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']};
+const mon = () => MON[isBoss() ? 'en' : 'id'];
+function fmtDate(d, withYear) {
+  if (!d) return '';
+  const [y, m, dd] = d.split('-').map(Number);
+  return dd + ' ' + mon()[m - 1] + (withYear ? ' ' + y : '');
+}
+function dow(d) { return DOW[isBoss() ? 'en' : 'id'][new Date(d + 'T12:00:00Z').getUTCDay()]; }
+function fmtRange(a, b) {
+  if (!a) return '';
+  if (a === b) return fmtDate(a, true);
+  const [ya, ma] = a.split('-'), [yb, mb] = b.split('-');
+  if (ya === yb && ma === mb) return Number(a.slice(8)) + '–' + fmtDate(b, true);
+  if (ya === yb) return fmtDate(a) + ' – ' + fmtDate(b, true);
+  return fmtDate(a, true) + ' – ' + fmtDate(b, true);
 }
 function dayLabel(d) {
   if (!d || !data) return '';
-  if (d === data.today) return 'hari ini';
-  if (d === data.yesterday) return 'kemarin';
-  const [y, m, dd] = d.split('-');
-  return Number(dd) + '/' + Number(m);
+  if (d === data.today) return T('hari ini', 'today');
+  if (d === data.yesterday) return T('kemarin', 'yesterday');
+  return fmtDate(d);
 }
+function addDays(d, n) { const x = new Date(d + 'T00:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); }
+function lastDay(ym) { const [y, m] = ym.split('-').map(Number); return new Date(Date.UTC(y, m, 0)).getUTCDate(); }
+function todayJkt() {
+  if (data && data.today) return data.today;
+  try { return new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Jakarta'}).format(new Date()); } catch (e) { return new Date().toISOString().slice(0, 10); }
+}
+function M(id) { const m = LOCS[id]; return isBoss() && m.en ? Object.assign({}, m, m.en) : m; }
 function show(id) { ['scrSetup', 'scrLogin', 'scrApp'].forEach(s => { $('#' + s).hidden = s !== id; }); }
 
 /* ====== API ====== */
-async function api(action, payload = {}) {
+async function api(action, payload = {}, quiet) {
   let res;
   try {
     res = await fetch(API_URL, {method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify({action, token, ...payload})});
-  } catch (e) { throw new Error('Tidak bisa terhubung ke server. Cek koneksi internet.'); }
+  } catch (e) { throw new Error(T('Tidak bisa terhubung ke server. Cek koneksi internet.', 'Cannot reach the server. Please check the internet connection.')); }
   let out;
-  try { out = await res.json(); } catch (e) { throw new Error('Respons server tidak valid.'); }
+  try { out = await res.json(); } catch (e) { throw new Error(T('Respons server tidak valid.', 'The server sent an invalid response.')); }
   if (!out.ok) {
     const err = new Error(out.message || out.error);
-    if (out.error === 'AUTH') { err.auth = true; signOut('Sesi habis. Masukkan PIN lagi.'); }
-    if (out.error === 'BAD_ACTION') err.message = 'Backend Ops Hub belum punya fitur peta. Cek langkah pasang (tambah case \'map\' di Code.gs, lalu deploy versi baru).';
+    err.code = out.error;
+    if (out.error === 'AUTH' && !quiet) { err.auth = true; signOut(T('Sesi habis. Masukkan PIN lagi.', 'Session expired. Please enter the PIN again.')); }
+    if (out.error === 'BAD_ACTION' && action === 'map') err.message = 'Backend Ops Hub belum punya fitur peta. Cek langkah pasang (tambah case \'map\' di Code.gs, lalu deploy versi baru).';
     throw err;
   }
   return out;
@@ -729,8 +860,10 @@ async function boot() {
 }
 
 function signOut(msg) {
-  token = null; data = null;
-  lsDel(LS.token);
+  if (role === 'boss') lsDel(LS.boss); else lsDel(LS.token);
+  token = null; data = null; range = null; pnl = null; preview = false; role = 'admin';
+  closePnl();
+  period = {mode: 'latest', month: '', from: '', to: ''};
   clearInterval(timer);
   show('scrLogin');
   $('#pin').value = '';
@@ -738,74 +871,272 @@ function signOut(msg) {
   $('#pin').focus();
 }
 
+const LOGIN_MSG = {BAD_PIN: 'PIN salah · Wrong PIN', LOCKED: 'Terlalu banyak percobaan salah, coba lagi 15 menit · Too many attempts, try again in 15 minutes'};
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const pin = $('#pin').value.trim();
-  if (!pin) { $('#loginMsg').textContent = 'Masukkan PIN dulu.'; return; }
+  if (!pin) { $('#loginMsg').textContent = 'Masukkan PIN dulu · Please enter the PIN'; return; }
   $('#loginBtn').disabled = true; $('#loginMsg').textContent = '';
   try {
-    const out = await api('login', {pin});
-    token = out.token; lsSet(LS.token, token);
+    let out;
+    try { out = await api('maplogin', {pin}, true); }
+    catch (err) {
+      // Code.gs lama (belum ada maplogin) → login Ops Hub biasa
+      if (err.code !== 'AUTH' && err.code !== 'BAD_ACTION') throw err;
+      out = await api('login', {pin}, true);
+      out.role = 'admin';
+    }
+    token = out.token; preview = false;
+    role = out.role === 'boss' ? 'boss' : 'admin';
+    if (role === 'boss') lsSet(LS.boss, token); else { lsSet(LS.token, token); lsDel(LS.boss); }
+    data = null; range = null; pnl = null; period = {mode: 'latest', month: '', from: '', to: ''};
     boot();
-  } catch (err) { $('#loginMsg').textContent = err.message; }
+  } catch (err) { $('#loginMsg').textContent = LOGIN_MSG[err.code] || err.message; }
   finally { $('#loginBtn').disabled = false; }
 });
-$('#logoutBtn').addEventListener('click', () => { api('logout').catch(() => {}); signOut(''); });
+$('#logoutBtn').addEventListener('click', () => {
+  if (role === 'boss') api('mapview', {logout: true}, true).catch(() => {}); else api('logout', {}, true).catch(() => {});
+  signOut('');
+});
 $('#refreshBtn').addEventListener('click', () => load(true));
+$('#printBtn').addEventListener('click', () => window.print());
+$('#previewBtn').addEventListener('click', () => { preview = !preview; renderAll(); });
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && data && Date.now() - data.builtAt > REFRESH_MS) load(false);
+  const t = (inRange() ? range.builtAt : data && data.builtAt) || 0;
+  if (document.visibilityState === 'visible' && token && Date.now() - t > REFRESH_MS) load(false);
 });
 
+/* ====== Periode ====== */
+function periodDates() {
+  const t = todayJkt(), p = period;
+  if (p.mode === '7d') return {from: addDays(t, -6), to: t};
+  if (p.mode === 'mtd') return {from: t.slice(0, 8) + '01', to: t};
+  if (p.mode === 'lastmonth') {
+    const y = Number(t.slice(0, 4)), m = Number(t.slice(5, 7));
+    const ym = (m === 1 ? y - 1 : y) + '-' + String(m === 1 ? 12 : m - 1).padStart(2, '0');
+    return {from: ym + '-01', to: ym + '-' + lastDay(ym)};
+  }
+  if (p.mode === 'month' && /^\d{4}-\d{2}$/.test(p.month)) return {from: p.month + '-01', to: p.month + '-' + lastDay(p.month)};
+  if (p.mode === 'custom' && p.from && p.to && p.from <= p.to) return {from: p.from, to: p.to};
+  return null;
+}
+function periodKey() { const d = periodDates(); return d ? d.from + '_' + d.to : ''; }
+function inRange() { return period.mode !== 'latest' && !!range && range.key === periodKey(); }
+function rangeWaiting() { return period.mode !== 'latest' && !inRange(); }
+
+function onPeriod() {
+  const sel = $('#period').value;
+  period.mode = sel;
+  const t = todayJkt();
+  if (sel === 'month' && !period.month) period.month = t.slice(0, 7);
+  if (sel === 'custom' && !period.from) { period.from = t.slice(0, 8) + '01'; period.to = t; }
+  renderAll();
+  if (sel !== 'custom') load(false);
+}
+$('#period').addEventListener('change', onPeriod);
+$('#pMonth').addEventListener('change', () => { if ($('#pMonth').value) { period.month = $('#pMonth').value; renderAll(); load(false); } });
+$('#pApply').addEventListener('click', () => {
+  const a = $('#pFrom').value, b = $('#pTo').value;
+  if (!a || !b || a > b) { showBanner(T('Tanggal mulai harus sebelum tanggal akhir.', 'The start date must be before the end date.')); return; }
+  period.from = a; period.to = b; $('#banner').hidden = true; renderAll(); load(false);
+});
+
+/* ====== Load ====== */
+function showBanner(m) { $('#banner').textContent = m; $('#banner').hidden = false; }
 async function load(force) {
-  if (loading) return;
+  if (loading) { pending = true; return; }
+  const want = period.mode === 'latest' ? null : periodDates();
+  if (period.mode !== 'latest' && !want) return;
   loading = true;
   $('#refreshBtn').disabled = true;
-  if (!data) $('#stamp').textContent = 'Memuat data live… (bisa 10–20 detik)';
+  if (!want && !data) $('#stamp').textContent = T('Memuat data live… (bisa 10–20 detik)', 'Loading live data… (10–20 seconds)');
+  if (want) $('#stamp').textContent = T('Memuat periode ', 'Loading ') + fmtRange(want.from, want.to) + '…';
   try {
-    const out = await api('map', {force: !!force});
-    data = out.map;
+    if (!want) {
+      const out = role === 'boss' ? await api('mapview', {force: !!force}) : await api('map', {force: !!force});
+      data = out.map;
+      if (!pnl) { pnl = {loading: true, brands: {}}; loadPnl(); }
+    } else {
+      const out = await api('mapview', {from: want.from, to: want.to, force: !!force});
+      range = out.range; range.key = want.from + '_' + want.to;
+    }
     $('#banner').hidden = true;
-    renderAll();
   } catch (err) {
-    if (!err.auth) { $('#banner').textContent = err.message; $('#banner').hidden = false; $('#stamp').textContent = data ? stampText() : 'Gagal memuat'; }
+    if (err.code === 'BAD_ACTION' && want) {
+      rangeOk = false; period.mode = 'latest';
+      showBanner('Pilih periode belum aktif: tambahkan 1 baris mapview di Code.gs lalu deploy versi baru (lihat langkah pasang).');
+    } else if (!err.auth) showBanner(err.message);
   } finally {
     loading = false;
     $('#refreshBtn').disabled = false;
+    if (token) renderAll();
+    if (pending) { pending = false; load(false); }
   }
 }
 function stampText() {
-  if (!data) return '';
-  const t = data.asOf.slice(11, 16);
-  return 'Update ' + t + ' · otomatis tiap 2 menit';
+  if (inRange()) return T('Periode ', 'Period ') + fmtRange(range.from, range.to) + ' · ' + T('update ', 'updated ') + range.asOf.slice(11, 16);
+  if (rangeWaiting()) return T('Memuat periode…', 'Loading period…');
+  if (!data) return T('Memuat data…', 'Loading…');
+  return T('Update ', 'Updated ') + data.asOf.slice(11, 16) + T(' · otomatis tiap 2 menit', ' · refreshes every 2 minutes');
 }
 
-/* ====== Derive view model ====== */
+/* ====== Hitungan periode ====== */
+function rangeStats(id) {
+  if (!inRange()) return null;
+  const l = range.locs[id];
+  if (!l || l.error || l.status === 'err' || l.kind !== 'outlet') return null;
+  const d = range.dates;
+  let n = d.length;
+  if (n && d[n - 1] === range.today && !l.s[n - 1]) n--;   // hari ini belum lapor → belum dihitung
+  let sales = 0, target = 0, days = 0, bills = 0, waste = 0, below = 0;
+  let best = null, worst = null;
+  const missing = [];
+  for (let i = 0; i < n; i++) {
+    const s = l.s[i], t = l.t[i];
+    target += t; waste += l.w[i] || 0;
+    if (l.b) bills += l.b[i] || 0;
+    if (s > 0) {
+      sales += s; days++;
+      if (!best || s > best.v) best = {d: d[i], v: s};
+      if (!worst || s < worst.v) worst = {d: d[i], v: s};
+      if (t > 0 && s < t * SALES_WARN / 100) below++;
+    } else missing.push(d[i]);
+  }
+  const pct = target ? Math.round(sales / target * 100) : null;
+  const prev = l.prev ? l.prev.sales : 0;
+  const growth = prev && days ? Math.round((sales - prev) / prev * 100) : null;
+  const wastePct = sales && waste ? Math.round(waste / sales * 1000) / 10 : null;
+  const unpriced = (l.wasteCount || 0) - (l.wastePriced || 0);
+  const warn = n > 0 && ((pct !== null && pct < SALES_WARN) || (wastePct !== null && wastePct > WASTE_WARN) || missing.length > 0);
+  return {n, sales, target, pct, days, prev, prevDays: l.prev ? l.prev.days : 0, growth, avg: days ? sales / days : 0, best, worst, below, missing,
+    bills: l.b ? bills : null, avgTicket: l.b && bills ? sales / bills : null, waste, wastePct, unpriced, warn};
+}
+/** Capaian grup hanya dari outlet yang punya target; pertumbuhan hanya dari outlet yang punya data di periode lalu (like-for-like). */
+function groupRange(ids) {
+  const g = {sales: 0, target: 0, prev: 0, n: 0, salesT: 0, salesP: 0, withTarget: 0};
+  ids.forEach(id => {
+    const s = rangeStats(id);
+    if (!s) return;
+    g.sales += s.sales; g.n++;
+    if (s.target) { g.target += s.target; g.salesT += s.sales; g.withTarget++; }
+    if (s.prev && s.days) { g.prev += s.prev; g.salesP += s.sales; }
+  });
+  g.pct = g.target ? Math.round(g.salesT / g.target * 100) : null;
+  g.growth = g.prev ? Math.round((g.salesP - g.prev) / g.prev * 100) : null;
+  return g;
+}
+function groupLatest(ids) {
+  const g = {sales: 0, target: 0, mtd: 0, reported: 0, today: 0, salesT: 0};
+  ids.forEach(id => {
+    const l = loc(id);
+    if (!l || !l.sales) return;
+    g.mtd += l.sales.mtd || 0;
+    if (l.sales.missing) return;
+    g.sales += l.sales.value; g.reported++;
+    if (l.sales.target) { g.target += l.sales.target; g.salesT += l.sales.value; }
+    if (l.sales.date === data.today) g.today++;
+  });
+  g.pct = g.target ? Math.round(g.salesT / g.target * 100) : null;
+  return g;
+}
+function openOutlets() { return OUTLETS.filter(id => { const l = inRange() ? range.locs[id] : loc(id); return l && l.kind !== 'build'; }); }
+
+/* ====== Status per lokasi ====== */
 function loc(id) { return data && data.locs ? data.locs[id] : null; }
 function statusOf(id) {
-  const meta = LOCS[id];
+  const meta = M(id);
   if (meta.static) return meta.static.status;
+  if (id === 'hq' && (isBoss() || period.mode !== 'latest')) {
+    const g = inRange() ? groupRange(OUTLETS) : (data ? groupLatest(OUTLETS) : null);
+    if (!g || rangeWaiting()) return 'load';
+    return g.pct !== null && g.pct < SALES_WARN ? 'warn' : 'ok';
+  }
+  if (period.mode !== 'latest' && id !== 'hq') {
+    if (!inRange()) return 'load';
+    const l = range.locs[id];
+    if (!l) return 'load';
+    if (l.error || l.status === 'err') return 'err';
+    if (l.kind === 'build') return 'build';
+    if (l.kind === 'ck') return 'ok';
+    const s = rangeStats(id);
+    return s && s.warn ? 'warn' : 'ok';
+  }
   const l = loc(id);
   if (!l) return 'load';
+  if (isBoss()) {
+    if (l.error || l.status === 'err') return 'err';
+    if (l.kind === 'build') return 'build';
+    return latestFlags(id).some(f => f.lvl === 'warn') ? 'warn' : 'ok';
+  }
   return l.status || 'ok';
 }
 function statusLabel(id) {
-  const meta = LOCS[id], s = statusOf(id);
+  const meta = M(id), s = statusOf(id);
   if (meta.static) return meta.static.label;
-  return ST[s].label;
+  return ST[s].label[isBoss() ? 1 : 0];
 }
+/** Alert versi bos (dihitung dari angka, bukan teks server). */
+function latestFlags(id) {
+  const l = loc(id), out = [];
+  if (!l) return out;
+  if (l.error || l.status === 'err') { out.push({lvl: 'warn', text: T('Data lokasi ini gagal dibaca', 'Data for this location could not be read right now')}); return out; }
+  const s = l.sales;
+  if (l.kind === 'outlet' && s) {
+    if (s.missing) out.push({lvl: 'warn', text: T('Belum ada laporan sales hari ini maupun kemarin', 'No sales report for today or yesterday yet')});
+    else if (s.pct !== null && s.pct !== undefined && s.pct < SALES_WARN) out.push({lvl: 'warn', text: T('Sales ' + s.pct + '% dari target', 'Sales at ' + s.pct + '% of target (below ' + SALES_WARN + '%)')});
+  }
+  const w = l.waste;
+  if (w && w.pctOfSales !== undefined && w.pctOfSales > WASTE_WARN) out.push({lvl: 'warn', text: T('Wastage ' + w.pctOfSales + '% dari sales', 'Wastage at ' + w.pctOfSales + '% of sales (above ' + WASTE_WARN + '%)')});
+  if (l.kind === 'ck' && l.invoice && l.invoice.open) out.push({lvl: 'info', text: T(l.invoice.open + ' invoice CK belum lunas', l.invoice.open + ' unpaid CK invoices (' + rp(l.invoice.total) + ')')});
+  return out;
+}
+function rangeFlags(id) {
+  const out = [], l = inRange() ? range.locs[id] : null;
+  if (!l) return out;
+  if (l.error || l.status === 'err') { out.push({lvl: 'warn', text: isBoss() ? 'Data for this location could not be read right now' : 'Data gagal dibaca: ' + (typeof l.error === 'string' ? l.error : '')}); return out; }
+  if (l.notes && l.notes.missingTabs) out.push({lvl: 'warn', text: T('Sheet sales belum punya tab ', 'The sales sheet has no tab for ') + l.notes.missingTabs.join(', ')});
+  const s = rangeStats(id);
+  if (!s) return out;
+  if (!s.days && s.n) out.push({lvl: 'warn', text: T('Tidak ada laporan sales di periode ini', 'No sales reported in this period')});
+  else if (s.missing.length) out.push({lvl: 'warn', text: T(s.missing.length + ' hari tanpa laporan sales: ', s.missing.length + ' day(s) without a sales report: ') + s.missing.slice(0, 6).map(d => fmtDate(d)).join(', ') + (s.missing.length > 6 ? '…' : '')});
+  if (s.pct !== null && s.pct < SALES_WARN && s.days) out.push({lvl: 'warn', text: T('Sales ' + s.pct + '% dari target periode ini', 'Sales at ' + s.pct + '% of target for the period (below ' + SALES_WARN + '%)')});
+  if (s.below) out.push({lvl: 'info', text: T(s.below + ' hari di bawah ' + SALES_WARN + '% target', 'Below ' + SALES_WARN + '% of target on ' + s.below + ' of ' + s.days + ' days')});
+  if (s.wastePct !== null && s.wastePct > WASTE_WARN) out.push({lvl: 'warn', text: T('Wastage ' + s.wastePct + '% dari sales', 'Wastage at ' + s.wastePct + '% of sales (above ' + WASTE_WARN + '%)')});
+  if (s.unpriced > 0) out.push({lvl: 'info', text: T(s.unpriced + ' item wastage belum bisa dihitung Rp', s.unpriced + ' wastage entries could not be valued (no price on file)')});
+  if (s.target === 0 && s.days) out.push({lvl: 'info', text: T('Target belum diisi untuk lokasi ini', 'No sales target set for this location')});
+  return out;
+}
+
 function badgeSub(id) {
-  const meta = LOCS[id];
-  if (id === 'yonai') return 'pra-launch';
+  const meta = M(id);
+  if (id === 'yonai') return T('pra-launch', 'pre-launch');
   if (meta.static) return '';
+  if (id === 'hq' && (isBoss() || period.mode !== 'latest')) {
+    if (rangeWaiting()) return '…';
+    const g = inRange() ? groupRange(OUTLETS) : (data ? groupLatest(OUTLETS) : null);
+    if (!g) return '…';
+    return g.pct !== null ? g.pct + '%' : rpShort(g.sales);
+  }
+  if (period.mode !== 'latest') {
+    if (!inRange()) return '…';
+    const l = range.locs[id];
+    if (!l) return '…';
+    if (l.error || l.status === 'err') return T('gagal baca', 'no data');
+    if (l.kind === 'build') return T('H-' + (l.notes.daysToOpen ?? '?') + ' buka', 'opens in ' + (l.notes.daysToOpen ?? '?') + 'd');
+    if (l.kind === 'ck') return l.do.reduce((a, b) => a + b, 0) + ' DO';
+    const s = rangeStats(id);
+    if (!s || !s.days) return T('belum ada data', 'no data');
+    return s.pct !== null ? s.pct + '%' : rpShort(s.sales);
+  }
   const l = loc(id);
   if (!l) return '…';
-  if (l.status === 'err') return 'gagal baca';
-  if (l.kind === 'build') return 'H-' + (l.notes.daysToOpen ?? '?') + ' buka';
-  if (id === 'ck') return (l.dos ? l.dos.today : 0) + ' DO hari ini';
+  if (l.status === 'err' || l.error) return T('gagal baca', 'no data');
+  if (l.kind === 'build') return T('H-' + (l.notes.daysToOpen ?? '?') + ' buka', 'opens in ' + (l.notes.daysToOpen ?? '?') + 'd');
+  if (id === 'ck') return (l.dos ? l.dos.today : 0) + T(' DO hari ini', ' DO today');
   if (id === 'hq') return (l.appr ? l.appr.total : 0) + ' approval';
   const s = l.sales;
-  if (!s || s.missing) return 'belum lapor';
-  const when = s.date === data.today ? '' : ' (kmrn)';
+  if (!s || s.missing) return T('belum lapor', 'not reported');
+  const when = s.date === data.today ? '' : T(' (kmrn)', ' (yday)');
   return (s.pct !== null && s.pct !== undefined ? s.pct + '%' : rpShort(s.value)) + when;
 }
 function linkFor(id) {
@@ -815,7 +1146,57 @@ function linkFor(id) {
   return (data && data.links && data.links[key]) || FALLBACK_LINKS[key] || '';
 }
 
-/* ====== Render: map ====== */
+/* ====== Render: header, bahasa, periode ====== */
+let soonText = null;
+function applyLang() {
+  const en = isBoss();
+  document.documentElement.lang = en ? 'en' : 'id';
+  document.body.classList.toggle('boss', en);
+  $('#eyebrow').textContent = en ? 'SISTER BRANDS · OPERATIONS OVERVIEW' : 'SISTER BRANDS';
+  $('#refreshBtn').textContent = T('Refresh', 'Refresh');
+  $('#logoutBtn').textContent = T('Keluar', 'Sign out');
+  $('#printBtn').textContent = T('Cetak / PDF', 'Print / PDF');
+  $('#printBtn').hidden = !en;
+  $('#kantorLink').hidden = en;
+  $('#hubLink').hidden = en;
+  $('#previewBtn').hidden = role === 'boss';
+  $('#previewBtn').textContent = preview ? 'Kembali ke versi Elvi' : 'Lihat versi bos';
+  $('#previewNote').hidden = !preview;
+  $('#lgOk').textContent = 'On track';
+  $('#lgWarn').textContent = T('Perlu cek', 'Needs attention');
+  $('#lgBuild').textContent = T('Renovasi', 'Opening soon');
+  $('#lgPlan').textContent = T('Rencana / pra-launch', 'Pipeline / pre-launch');
+  $('#lgErr').textContent = T('Gagal baca data', 'Data unavailable');
+  $('#lgHint').textContent = T('Klik gedung atau papan untuk lihat detail (di HP, geser peta ke samping)', 'Tap a building or sign for details (on a phone, swipe the map sideways)');
+  $('#note').textContent = T(
+    'Data dibaca langsung dari spreadsheet tiap brand (read-only) dan diperbarui otomatis tiap 2 menit. Sales outlet masuk setelah laporan closing / finance diisi; kalau hari ini belum ada, yang tampil laporan kemarin. Periode lain dibandingkan dengan tanggal yang sama bulan lalu (atau jumlah hari yang sama sebelumnya).',
+    'Figures are read live from each brand\'s own spreadsheets (read-only). "Latest report" shows today\'s closing report, or yesterday\'s if today\'s is not in yet. Achievement = sales ÷ daily sales target. Other periods are compared with the same dates last month (or the same number of days just before). Today only counts once its report is in.');
+  $('#periodLbl').textContent = T('Periode', 'Period');
+  $('#pApply').textContent = T('Terapkan', 'Apply');
+  if (!soonText) soonText = [...document.querySelectorAll('#map text')].find(t => t.textContent.trim() === 'SEGERA DIBUKA' || t.textContent.trim() === 'OPENING SOON') || null;
+  if (soonText) soonText.textContent = en ? 'OPENING SOON' : 'SEGERA DIBUKA';
+}
+function renderPeriodBar() {
+  const opts = [['latest', T('Laporan terakhir', 'Latest report')], ['7d', T('7 hari terakhir', 'Last 7 days')], ['mtd', T('Bulan ini', 'This month')],
+    ['lastmonth', T('Bulan lalu', 'Last month')], ['month', T('Pilih bulan…', 'Choose a month…')], ['custom', T('Rentang tanggal…', 'Date range…')]];
+  const sel = $('#period');
+  sel.innerHTML = opts.map(o => '<option value="' + o[0] + '"' + (period.mode === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('');
+  sel.disabled = !rangeOk;
+  const t = todayJkt();
+  $('#pMonth').hidden = period.mode !== 'month';
+  $('#pMonth').max = t.slice(0, 7);
+  if (period.month) $('#pMonth').value = period.month;
+  const custom = period.mode === 'custom';
+  ['#pFrom', '#pTo', '#pApply', '#pDash'].forEach(s => { $(s).hidden = !custom; });
+  $('#pFrom').max = t; $('#pTo').max = t;
+  if (custom) { if (period.from) $('#pFrom').value = period.from; if (period.to) $('#pTo').value = period.to; }
+  const d = periodDates();
+  $('#periodInfo').textContent = period.mode === 'latest'
+    ? T('Sales laporan terakhir per outlet (hari ini, atau kemarin kalau belum ada)', 'Each outlet\'s most recent daily report (today, or yesterday if today\'s is not in yet)')
+    : (d ? fmtRange(d.from, d.to > t ? t : d.to) + (inRange() ? ' · ' + T('dibanding ', 'vs ') + fmtRange(range.prevFrom, range.prevTo) : '') : '');
+}
+
+/* ====== Render: peta ====== */
 function renderMap() {
   const svg = $('#map');
   Object.keys(LOCS).forEach(id => {
@@ -827,10 +1208,11 @@ function renderMap() {
     });
     svg.querySelectorAll('[data-fg="' + id + '"]').forEach(el => el.setAttribute('fill', on ? '#FFFFFF' : '#2B2824'));
     svg.querySelectorAll('[data-dot="' + id + '"]').forEach(el => el.setAttribute('fill', SOLID[s]));
+    const g = svg.querySelector('[data-badge="' + id + '"]');
     const sub = svg.querySelector('[data-sub="' + id + '"]');
     if (sub) {
       sub.textContent = ' · ' + badgeSub(id);
-      fitBadge(svg.querySelector('[data-badge="' + id + '"]'));
+      fitBadge(g);
     }
   });
   const ck = loc('ck');
@@ -847,60 +1229,84 @@ function fitBadge(g) {
 }
 
 /* ====== Render: KPI ====== */
-function renderKpis() {
-  const sumSales = ids => ids.reduce((a, id) => { const l = loc(id); return a + (l && l.sales && !l.sales.missing ? l.sales.value : 0); }, 0);
-  const reported = ids => ids.filter(id => { const l = loc(id); return l && l.sales && !l.sales.missing; }).length;
-  const today = ids => ids.filter(id => { const l = loc(id); return l && l.sales && l.sales.date === data.today; }).length;
-  const has = !!data;
-  const alerts = has ? Object.values(data.locs).reduce((a, l) => a + (l.alerts || []).filter(x => x.lvl === 'warn').length, 0) : 0;
-  const appr = has ? ['moi', 'bxc', 'ck', 'monty'].reduce((a, id) => a + ((loc(id) && loc(id).appr) ? loc(id).appr.total : 0), 0) : 0;
-  const open = OUTLETS.filter(id => { const l = loc(id); return l && l.kind !== 'build'; });
-  const v = n => has ? rpShort(n) : '—';
-  const tiles = [
-    {dark: true, l: 'Sales laporan terakhir', v: v(sumSales(OUTLETS)), s: has ? today(OUTLETS) + ' dari ' + open.length + ' outlet sudah lapor hari ini · ' + alerts + ' alert · ' + appr + ' approval' : 'memuat…'},
-    {b: 'soya', v: v(sumSales(['moi', 'bxc'])), s: has && loc('bxc') && loc('bxc').kind === 'build' ? 'MOI · BXC buka ' + fmtDate(loc('bxc').notes.openDate) : 'MOI · BXC'},
-    {b: 'monty', v: v(sumSales(['monty'])), s: 'Duri Kosambi'},
-    {b: 'no25', v: v(sumSales(['pim2', 'kmall', 'alsut', 'pasar'])), s: has ? reported(['pim2', 'kmall', 'alsut', 'pasar']) + ' dari 4 outlet ada data' : '4 outlet'},
-    {b: 'yonai', v: 'Pra-launch', s: 'booth mall, lalu B2B'}
-  ];
-  $('#kpis').innerHTML = tiles.map(t => {
-    const br = t.b ? BRANDS[t.b] : null;
-    const label = br ? '<span class="chip" style="background:' + br.fill + ';border-color:' + br.edge + '"></span>' + esc(br.name) : esc(t.l);
-    return '<div class="kpi' + (t.dark ? ' dark' : '') + '"><div class="l">' + label + '</div><div class="v">' + esc(t.v) + '</div><div class="s">' + esc(t.s) + '</div></div>';
-  }).join('');
+function chipLabel(b) { const br = BRANDS[b]; return '<span class="chip" style="background:' + br.fill + ';border-color:' + br.edge + '"></span>' + esc(br.name); }
+function kpiTile(t) {
+  const f = t.b ? pnlFiles(t.b)[0] : null;
+  const link = f ? '<button type="button" class="pnlink" data-pnl="' + esc(f.id) + '">P&amp;L ' + esc(fmtMonth(f.ym)) + ' ›</button>' : '';
+  return '<div class="kpi' + (t.dark ? ' dark' : '') + '"><div class="l">' + (t.b ? chipLabel(t.b) : esc(t.l)) + '</div><div class="v">' + esc(t.v) + '</div><div class="s">' + esc(t.s) + '</div>' + link + '</div>';
 }
-function fmtDate(d) {
-  if (!d) return '';
-  const mon = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-  const [y, m, dd] = d.split('-').map(Number);
-  return dd + ' ' + mon[m - 1];
+function renderKpis() {
+  if (period.mode !== 'latest') return renderRangeKpis();
+  const has = !!data;
+  const v = n => has ? rpShort(n) : '—';
+  const open = OUTLETS.filter(id => { const l = loc(id); return l && l.kind !== 'build'; });
+  const all = has ? groupLatest(OUTLETS) : null;
+  let sub;
+  if (!has) sub = T('memuat…', 'loading…');
+  else if (isBoss()) {
+    const flags = open.reduce((a, id) => a + latestFlags(id).filter(f => f.lvl === 'warn').length, 0);
+    sub = all.today + ' of ' + open.length + ' outlets reported today' + (all.pct !== null ? ' · ' + all.pct + '% of target' : '') + ' · ' + flags + ' flag' + (flags === 1 ? '' : 's');
+  } else {
+    const alerts = Object.values(data.locs).reduce((a, l) => a + (l.alerts || []).filter(x => x.lvl === 'warn').length, 0);
+    const appr = ['moi', 'bxc', 'ck', 'monty'].reduce((a, id) => a + ((loc(id) && loc(id).appr) ? loc(id).appr.total : 0), 0);
+    sub = all.today + ' dari ' + open.length + ' outlet sudah lapor hari ini · ' + alerts + ' alert · ' + appr + ' approval';
+  }
+  const brand = b => {
+    const g = has ? groupLatest(BRAND_OUTLETS[b]) : null;
+    let s = '';
+    if (b === 'soya') s = has && loc('bxc') && loc('bxc').kind === 'build' ? T('MOI · BXC buka ', 'MOI · BXC opens ') + fmtDate(loc('bxc').notes.openDate) : 'MOI · BXC';
+    if (b === 'monty') s = 'Duri Kosambi';
+    if (b === 'no25') s = has ? g.reported + T(' dari 4 outlet ada data', ' of 4 outlets reported') : T('4 outlet', '4 outlets');
+    if (has && g.pct !== null && isBoss()) s = g.pct + '% of target · ' + s;
+    return {b, v: v(g ? g.sales : 0), s};
+  };
+  const tiles = [
+    {dark: true, l: T('Sales laporan terakhir', 'Sales · latest daily report'), v: v(all ? all.sales : 0), s: sub},
+    brand('soya'), brand('monty'), brand('no25'),
+    {b: 'yonai', v: T('Pra-launch', 'Pre-launch'), s: T('booth mall, lalu B2B', 'mall booths, then B2B')}
+  ];
+  if (isBoss() && has) tiles.splice(1, 0, {l: T('Sales bulan ini (MTD)', 'Month to date'), v: rpShort(all.mtd), s: T('semua outlet', 'all outlets · ') + fmtRange(data.today.slice(0, 8) + '01', data.today)});
+  $('#kpis').innerHTML = tiles.map(kpiTile).join('');
+}
+function renderRangeKpis() {
+  const ok = inRange();
+  const d = periodDates();
+  const lbl = d ? fmtRange(d.from, d.to > todayJkt() ? todayJkt() : d.to) : '';
+  const sub = g => !ok ? T('memuat…', 'loading…') : [g.pct !== null ? g.pct + T('% dari target', '% of target') : T('target belum diisi', 'no target'), g.growth !== null ? signed(g.growth) + T(' vs periode lalu', ' vs previous') : ''].filter(Boolean).join(' · ');
+  const all = ok ? groupRange(OUTLETS) : null;
+  const tiles = [{dark: true, l: T('Total sales · ', 'Total sales · ') + lbl, v: ok ? rpShort(all.sales) : '—', s: ok ? sub(all) : T('memuat…', 'loading…')}];
+  ['soya', 'monty', 'no25'].forEach(b => { const g = ok ? groupRange(BRAND_OUTLETS[b]) : null; tiles.push({b, v: ok ? rpShort(g.sales) : '—', s: ok ? sub(g) : '…'}); });
+  tiles.push({b: 'yonai', v: T('Pra-launch', 'Pre-launch'), s: T('booth mall, lalu B2B', 'mall booths, then B2B')});
+  $('#kpis').innerHTML = tiles.map(kpiTile).join('');
 }
 
 /* ====== Render: panel ====== */
-function metric(label, value, sub, pct, color) {
-  return '<div class="m"><div class="ml">' + esc(label) + '</div><div class="mv">' + esc(value) + '</div>' +
+function metric(label, value, sub, pct, color, cls) {
+  return '<div class="m' + (cls ? ' ' + cls : '') + '"><div class="ml">' + esc(label) + '</div><div class="mv">' + esc(value) + '</div>' +
     (sub ? '<div class="ms">' + esc(sub) + '</div>' : '') +
     (pct !== undefined && pct !== null ? '<div class="bar"><i style="width:' + Math.min(100, Math.max(0, pct)) + '%;background:' + color + '"></i></div>' : '') + '</div>';
 }
 function outletMetrics(l, color) {
   const out = [];
   const s = l.sales, n = l.notes || {};
-  if (!s || s.missing) out.push(metric('Sales', 'Belum ada laporan', 'hari ini maupun kemarin'));
-  else out.push(metric('Sales ' + dayLabel(s.date), rp(s.value), s.target ? 'target ' + rp(s.target) + ' · ' + s.pct + '%' : 'target belum diisi (tab TARGET di OPS_HUB)', s.target ? s.pct : null, color));
-  out.push(metric('Sales bulan ini (MTD)', s ? rp(s.mtd) : '—', s && s.mtdDays ? s.mtdDays + ' hari ada laporan' : ''));
-  if (n.noBills) out.push(metric('Jumlah bill', '—', 'tidak dicatat di sheet sales'));
-  else out.push(metric('Jumlah bill', s && !s.missing ? String(s.bills) : '—', s && s.avg ? 'rata-rata ' + rp(s.avg) : ''));
+  if (!s || s.missing) out.push(metric('Sales', T('Belum ada laporan', 'No report yet'), T('hari ini maupun kemarin', 'for today or yesterday')));
+  else out.push(metric('Sales ' + dayLabel(s.date), rp(s.value), s.target ? 'target ' + rp(s.target) + ' · ' + s.pct + '%' : T('target belum diisi (tab TARGET di OPS_HUB)', 'no target set'), s.target ? s.pct : null, color));
+  out.push(metric(T('Sales bulan ini (MTD)', 'Month to date'), s ? rp(s.mtd) : '—', s && s.mtdDays ? s.mtdDays + T(' hari ada laporan', ' days reported') : ''));
+  if (n.noBills) out.push(metric(T('Jumlah bill', 'Bills'), '—', T('tidak dicatat di sheet sales', 'not recorded in this outlet\'s sales sheet')));
+  else out.push(metric(T('Jumlah bill', 'Bills'), s && !s.missing ? String(s.bills) : '—', s && s.avg ? T('rata-rata ', 'avg ticket ') + rp(s.avg) : ''));
   out.push(wasteMetric(l.waste));
-  if (n.noCrew) out.push(metric('Crew on shift', '—', 'absensi belum di sheet'));
-  else out.push(crewMetric(l.crew));
-  if (n.noAppr) out.push(metric('Approval menunggu', '—', 'belum ada di sheet'));
-  else out.push(apprMetric(l.appr));
+  if (!isBoss()) {
+    if (n.noCrew) out.push(metric('Crew on shift', '—', 'absensi belum di sheet'));
+    else out.push(crewMetric(l.crew));
+    if (n.noAppr) out.push(metric('Approval menunggu', '—', 'belum ada di sheet'));
+    else out.push(apprMetric(l.appr));
+  }
   return out;
 }
 function wasteMetric(w) {
-  if (!w || !w.count) return metric('Wastage', 'Rp 0', 'belum ada input hari ini/kemarin');
-  let sub = w.count + ' entri ' + dayLabel(w.date);
-  if (w.pctOfSales !== undefined) sub += ' · ' + w.pctOfSales + '% dari sales';
+  if (!w || !w.count) return metric('Wastage', 'Rp 0', T('belum ada input hari ini/kemarin', 'nothing logged today or yesterday'));
+  let sub = w.count + T(' entri ', ' entries ') + dayLabel(w.date);
+  if (w.pctOfSales !== undefined) sub += ' · ' + w.pctOfSales + T('% dari sales', '% of sales');
   return metric('Wastage ' + dayLabel(w.date), rp(w.rp), sub);
 }
 function crewMetric(c) {
@@ -916,79 +1322,328 @@ function apprMetric(a) {
   return metric('Approval menunggu', String(a.total), parts.join(' · ') || 'tidak ada');
 }
 
+/** Grafik batang harian (sales vs target, atau DO). */
+function barChart(values, targets, label) {
+  const d = range.dates, n = d.length;
+  if (!n) return '';
+  const W = 320, H = 130, top = 14, base = 104;
+  const max = Math.max(1, ...values, ...(targets || [0]));
+  const bw = W / n, gap = n > 40 ? 0 : Math.min(4, bw * 0.25);
+  let bars = '', ticks = '';
+  for (let i = 0; i < n; i++) {
+    const v = values[i] || 0, t = targets ? targets[i] || 0 : 0;
+    const x = i * bw + gap / 2, w = Math.max(1, bw - gap);
+    const h = v ? Math.max(2, (v / max) * (base - top)) : 2;
+    let fill = v ? (t ? (v >= t * SALES_WARN / 100 ? '#2F8A57' : '#D9952B') : '#8C7F72') : '#D8D3CB';
+    const tip = fmtDate(d[i]) + ' (' + dow(d[i]) + '): ' + (targets ? (v ? rp(v) : T('belum ada laporan', 'no report')) + (t ? ' · ' + Math.round(v / t * 100) + '% ' + T('dari target', 'of target') : '') : v + ' ' + label);
+    bars += '<rect x="' + x.toFixed(2) + '" y="' + (base - h).toFixed(2) + '" width="' + w.toFixed(2) + '" height="' + h.toFixed(2) + '" rx="' + (w > 6 ? 2 : 0) + '" fill="' + fill + '"><title>' + esc(tip) + '</title></rect>';
+    if (t) { const ty = base - (t / max) * (base - top); ticks += '<line x1="' + (i * bw).toFixed(2) + '" x2="' + ((i + 1) * bw).toFixed(2) + '" y1="' + ty.toFixed(2) + '" y2="' + ty.toFixed(2) + '" stroke="#2B2824" stroke-width="1.5" stroke-dasharray="' + (n > 40 ? '0' : '4 2') + '"/>'; }
+  }
+  const mid = Math.floor((n - 1) / 2);
+  const lab = (i, anchor) => '<text x="' + (anchor === 'start' ? 0 : anchor === 'end' ? W : (mid + 0.5) * bw) + '" y="' + (base + 16) + '" text-anchor="' + anchor + '" class="cl">' + esc(fmtDate(d[i])) + '</text>';
+  const yl = '<text x="0" y="10" class="cl">' + esc(targets ? rpShort(max) : max + ' ' + label) + '</text>';
+  const legend = targets ? '<div class="clegend"><span><i style="background:#2F8A57"></i>' + T('≥ 75% target', '≥ 75% of target') + '</span><span><i style="background:#D9952B"></i>' + T('< 75% target', '< 75% of target') + '</span><span><i class="ln"></i>' + T('target harian', 'daily target') + '</span><span><i style="background:#D8D3CB"></i>' + T('tidak ada laporan', 'no report') + '</span></div>' : '';
+  return '<div class="chart"><h3 class="h3">' + esc(targets ? T('Sales harian', 'Daily sales') : T('DO per hari', 'Deliveries per day')) + '</h3>' +
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(targets ? T('Grafik sales harian', 'Daily sales chart') : T('Grafik DO harian', 'Daily deliveries chart')) + '">' + yl + bars + ticks +
+    '<line x1="0" x2="' + W + '" y1="' + base + '" y2="' + base + '" stroke="#BDB7AE"/>' + lab(0, 'start') + (n > 2 ? lab(mid, 'middle') : '') + (n > 1 ? lab(n - 1, 'end') : '') + '</svg>' + legend + '</div>';
+}
+
+function groupPanelBody() {
+  const ok = inRange();
+  if (!ok && !data) return {headline: T('Memuat data…', 'Loading…'), metrics: [], alerts: [], extra: ''};
+  if (rangeWaiting()) return {headline: T('Memuat periode…', 'Loading period…'), metrics: [], alerts: [], extra: ''};
+  const metrics = [], alerts = [];
+  let headline;
+  const ranked = openOutlets().map(id => {
+    const s = ok ? rangeStats(id) : (loc(id) && loc(id).sales && !loc(id).sales.missing ? loc(id).sales : null);
+    return {id, pct: s ? s.pct : null, sales: s ? (ok ? s.sales : s.value) : 0};
+  }).filter(x => x.pct !== null && x.pct !== undefined).sort((a, b) => b.pct - a.pct);
+  if (ok) {
+    const g = groupRange(OUTLETS);
+    headline = (g.pct !== null ? T('Sales grup ' + g.pct + '% dari target', 'Group sales at ' + g.pct + '% of target') : T('Sales grup ', 'Group sales ') + rpShort(g.sales)) + (g.growth !== null ? ' · ' + signed(g.growth) + T(' vs periode lalu', ' vs previous period') : '');
+    metrics.push(metric(T('Total sales', 'Total sales'), rp(g.sales), g.target ? T('capaian ', 'achieved ') + g.pct + T('% dari target (', '% of target (') + g.withTarget + T(' outlet bertarget)', ' outlets with a target)') : '', g.target ? g.pct : null, 'var(--ok)'));
+    metrics.push(metric(T('vs periode lalu', 'vs previous period'), g.growth === null ? '—' : signed(g.growth), rp(g.prev) + ' · ' + fmtRange(range.prevFrom, range.prevTo)));
+    ['soya', 'monty', 'no25'].forEach(b => { const x = groupRange(BRAND_OUTLETS[b]); metrics.push(metric(BRANDS[b].name, rp(x.sales), [x.pct !== null ? x.pct + T('% dari target', '% of target') : '', x.growth !== null ? signed(x.growth) + T(' vs lalu', ' vs prev') : ''].filter(Boolean).join(' · '), x.pct, 'var(--ok)')); });
+  } else {
+    const g = groupLatest(OUTLETS);
+    headline = T('Ringkasan laporan terakhir semua outlet', 'Latest daily report across all outlets');
+    metrics.push(metric(T('Sales laporan terakhir', 'Latest daily sales'), rp(g.sales), g.target ? 'target ' + rp(g.target) + ' · ' + g.pct + '%' : '', g.target ? g.pct : null, 'var(--ok)'));
+    metrics.push(metric(T('Sales bulan ini (MTD)', 'Month to date'), rp(g.mtd), fmtRange(data.today.slice(0, 8) + '01', data.today)));
+    metrics.push(metric(T('Outlet sudah lapor', 'Outlets reported'), g.today + ' / ' + openOutlets().length, T('hari ini', 'today')));
+  }
+  if (ranked.length) {
+    const b = ranked[0], w = ranked[ranked.length - 1];
+    metrics.push(metric(T('Pencapaian tertinggi', 'Best vs target'), M(b.id).short, b.pct + '%'));
+    if (ranked.length > 1) metrics.push(metric(T('Pencapaian terendah', 'Weakest vs target'), M(w.id).short, w.pct + '%'));
+  }
+  openOutlets().forEach(id => {
+    const fl = ok ? rangeFlags(id) : latestFlags(id);
+    fl.filter(f => f.lvl === 'warn').forEach(f => alerts.push({lvl: 'warn', text: M(id).short + ': ' + f.text}));
+  });
+  const gm = {total: 0, grab: 0, gojek: 0, other: 0};
+  openOutlets().forEach(id => {
+    const st = ok ? rangeStats(id) : null;
+    const m = ok ? (st ? mixOf(st.sales, range.locs[id].ch) : null) : (loc(id) && loc(id).sales ? mixOf(loc(id).sales.mtd, loc(id).sales.mtdCh) : null);
+    if (m) ['total', 'grab', 'gojek', 'other'].forEach(k => { gm[k] += m[k]; });
+  });
+  const extra = mixBlock(mixOf(gm.total, gm), T('Channel mix grup · ', 'Group channel mix · ') + (ok ? T('periode ini', 'this period') : T('bulan ini', 'month to date'))) + pnlOverview();
+  return {headline, metrics, alerts, extra};
+}
+
+/* ====== Channel mix ====== */
+const CH = [['off', 'Offline / dine-in', 'In-store', '#8C7F72'], ['grab', 'GrabFood', 'GrabFood', '#2F8A57'], ['gojek', 'GoFood', 'GoFood', '#3F74A3'], ['other', 'Online lain', 'Other online', '#C9A27A']];
+function mixOf(total, ch) {
+  if (!total || !ch) return null;
+  const on = (ch.grab || 0) + (ch.gojek || 0) + (ch.other || 0);
+  return {total, off: Math.max(0, total - on), grab: ch.grab || 0, gojek: ch.gojek || 0, other: ch.other || 0, online: pctFmt(Math.min(on, total) / total * 100)};
+}
+function pctFmt(x) {
+  const v = x < 10 ? Math.round(x * 10) / 10 : Math.round(x);
+  return v.toLocaleString(loc_(), {maximumFractionDigits: 1});
+}
+function mixBlock(m, title) {
+  if (!m) return '';
+  const parts = CH.map(c => ({k: c[0], lbl: isBoss() ? c[2] : c[1], c: c[3], v: m[c[0]]})).filter(x => x.v > 0);
+  const pc = v => pctFmt(v / m.total * 100);
+  return '<div class="mix"><div class="mixh"><h3 class="h3">' + esc(title) + '</h3><span>online ' + m.online + '%</span></div>' +
+    '<div class="mixbar" role="img" aria-label="' + esc(parts.map(x => x.lbl + ' ' + pc(x.v) + '%').join(', ')) + '">' + parts.map(x => '<i style="width:' + (x.v / m.total * 100).toFixed(2) + '%;background:' + x.c + '"></i>').join('') + '</div>' +
+    '<div class="mixl">' + parts.map(x => '<span><i style="background:' + x.c + '"></i>' + esc(x.lbl) + ' <b>' + pc(x.v) + '%</b> · ' + esc(rpShort(x.v)) + '</span>').join('') + '</div></div>';
+}
+
+/* ====== P&L (PDF di Google Drive) ====== */
+const PNL_BRANDS = {soya: 'SOYA SUKA', monty: 'MONTY&Co.', no25: 'No. 25', yonai: 'YO-NAI', group: 'Group'};
+function fmtMonth(ym) { const [y, m] = ym.split('-').map(Number); return mon()[m - 1] + ' ' + y; }
+function pnlFiles(b) { return pnl && pnl.brands && pnl.brands[b] ? pnl.brands[b].filter(f => isBoss() ? !f.draft : true) : []; }
+function pnlChip(f, primary) {
+  return '<button type="button" class="pchip' + (primary ? ' on' : '') + '" data-pnl="' + esc(f.id) + '">' + esc(fmtMonth(f.ym)) + (f.label ? ' · ' + esc(f.label) : '') + (f.draft ? ' <em>draft</em>' : '') + '</button>';
+}
+function pnlBlock(b) {
+  if (!pnl || pnl.error || pnl.loading) return '';
+  const files = pnlFiles(b);
+  if (!files.length) {
+    if (isBoss()) return '';
+    return '<div class="pnl"><h3 class="h3">P&amp;L ' + esc(PNL_BRANDS[b]) + '</h3><p class="note">' + (pnl.folder ? 'Belum ada PDF di Drive › GENERAL P&amp;L › ' + esc(PNL_BRANDS[b]) + '. Nama file diawali periode, mis. 202610.pdf.' : 'Folder "GENERAL P&amp;L" belum ketemu di Drive.') + '</p></div>';
+  }
+  return '<div class="pnl"><h3 class="h3">P&amp;L ' + esc(PNL_BRANDS[b]) + '</h3><div class="pchips">' + files.slice(0, 12).map((f, i) => pnlChip(f, i === 0)).join('') + '</div></div>';
+}
+function pnlOverview() {
+  if (!pnl || pnl.error || pnl.loading) return '';
+  const rows = Object.keys(PNL_BRANDS).map(b => ({b, f: pnlFiles(b)[0]})).filter(x => x.f);
+  if (!rows.length) return isBoss() ? '' : '<div class="pnl"><h3 class="h3">P&amp;L</h3><p class="note">' + (pnl.folder ? 'Folder GENERAL P&amp;L sudah ketemu, tapi belum ada PDF di subfolder brand.' : 'Folder "GENERAL P&amp;L" belum ketemu di Drive.') + '</p></div>';
+  return '<div class="pnl"><h3 class="h3">' + T('P&amp;L terbaru per brand', 'Latest P&amp;L by brand') + '</h3><div class="pchips">' +
+    rows.map(x => '<button type="button" class="pchip" data-pnl="' + esc(x.f.id) + '">' + esc(PNL_BRANDS[x.b]) + ' · ' + esc(fmtMonth(x.f.ym)) + (x.f.draft ? ' <em>draft</em>' : '') + '</button>').join('') + '</div></div>';
+}
+async function loadPnl() {
+  try { const out = await api('mapview', {pnl: 'list'}, true); pnl = out.pnl || {brands: {}}; }
+  catch (e) { pnl = {error: e.code || 'ERR', brands: {}}; }
+  if (token) { renderKpis(); renderPanel(); }
+}
+let pdfUrl = null;
+function pnlMeta(id) {
+  let hit = null;
+  Object.keys((pnl && pnl.brands) || {}).forEach(b => pnl.brands[b].forEach(f => { if (f.id === id) hit = Object.assign({b}, f); }));
+  return hit;
+}
+async function openPnl(id) {
+  const f = pnlMeta(id), dlg = $('#pdfDlg');
+  if (!f) return;
+  if (pdfUrl) { URL.revokeObjectURL(pdfUrl); pdfUrl = null; }
+  $('#pdfTitle').textContent = 'P&L ' + PNL_BRANDS[f.b] + ' · ' + fmtMonth(f.ym) + (f.label ? ' · ' + f.label : '');
+  $('#pdfMsg').textContent = T('Memuat PDF…', 'Loading the PDF…');
+  $('#pdfFrame').hidden = true; $('#pdfFrame').removeAttribute('src');
+  $('#pdfOpen').hidden = true; $('#pdfDl').hidden = true;
+  $('#pdfOpen').textContent = T('Buka di tab baru', 'Open in new tab');
+  $('#pdfClose').textContent = T('Tutup', 'Close');
+  if (typeof dlg.showModal === 'function') { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute('open', '');
+  try {
+    const out = await api('mapview', {pnlFile: id});
+    const bin = atob(out.file.b64), bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    pdfUrl = URL.createObjectURL(new Blob([bytes], {type: 'application/pdf'}));
+    $('#pdfOpen').href = pdfUrl; $('#pdfDl').href = pdfUrl; $('#pdfDl').download = out.file.name;
+    $('#pdfOpen').hidden = false; $('#pdfDl').hidden = false;
+    if (window.innerWidth >= 700) { $('#pdfFrame').src = pdfUrl; $('#pdfFrame').hidden = false; $('#pdfMsg').textContent = ''; }
+    else $('#pdfMsg').textContent = T('Di HP, buka PDF-nya lewat tombol di atas.', 'On a phone, open the PDF with the button above.');
+  } catch (e) { $('#pdfMsg').textContent = T('PDF gagal dibuka: ', 'Could not open the PDF: ') + e.message; }
+}
+function closePnl() {
+  const dlg = $('#pdfDlg');
+  if (dlg.open) { if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open'); }
+  $('#pdfFrame').removeAttribute('src');
+  if (pdfUrl) { URL.revokeObjectURL(pdfUrl); pdfUrl = null; }
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-pnl]'); if (b) { e.preventDefault(); openPnl(b.dataset.pnl); } });
+$('#pdfClose').addEventListener('click', closePnl);
+
 function renderPanel() {
-  const id = selected, meta = LOCS[id], br = BRANDS[meta.b];
+  const id = selected, meta = M(id), br = BRANDS[meta.b];
   const s = statusOf(id), st = ST[s];
-  const l = loc(id);
-  let headline = '', metrics = [], alerts = [];
+  const boss = isBoss();
+  let headline = '', metrics = [], alerts = [], extra = '';
 
   if (meta.static) {
     headline = meta.static.headline;
     metrics = meta.static.metrics.map(m => metric(m[0], m[1], m[2] || ''));
-  } else if (!l) {
-    headline = 'Memuat data…';
-  } else if (l.status === 'err') {
-    headline = 'Data lokasi ini gagal dibaca';
-    alerts = l.alerts || [];
-  } else if (l.kind === 'build') {
-    headline = 'Target kontraktor selesai ' + fmtDate(l.notes.openDate);
-    metrics = [metric('Menuju buka', 'H-' + l.notes.daysToOpen, fmtDate(l.notes.openDate) + ' 2026'),
-      metric('Sales', 'Belum ada', 'muncul otomatis saat laporan pertama masuk'), apprMetric(l.appr)];
-    alerts = l.alerts || [];
-  } else if (id === 'ck') {
-    const d = l.dos || {}, p = l.prod || {}, inv = l.invoice || {};
-    headline = (d.today || 0) + ' DO hari ini' + (p.count ? ' · ' + p.count + ' item diproduksi ' + dayLabel(p.date) : '');
-    metrics = [
-      metric('DO hari ini', String(d.today || 0), (d.stores || []).join(', ') || 'belum ada surat jalan'),
-      metric('Hasil produksi ' + dayLabel(p.date), p.count ? p.count + ' item' : '—', (p.top || []).map(t => t.name + ' ' + Number(t.qty).toLocaleString('id-ID') + ' ' + t.unit.toLowerCase()).join(', ')),
-      wasteMetric(l.waste), crewMetric(l.crew), apprMetric(l.appr),
-      metric('Invoice belum lunas', String(inv.open || 0), inv.open ? rp(inv.total) + ' · ' + d.unbilled + ' surat jalan belum ditagih' : (d.unbilled ? d.unbilled + ' surat jalan belum ditagih' : 'semua lunas'))
-    ];
-    alerts = l.alerts || [];
-  } else if (id === 'hq') {
-    headline = (l.appr ? l.appr.total : 0) + ' approval menunggu di SOYA SUKA';
-    metrics = [metric('Approval menunggu', String(l.appr ? l.appr.total : 0), 'MOI, BXC dan CK')]
-      .concat((l.breakdown || []).map(b => metric(b.name, String(b.total), [b.izin ? b.izin + ' izin' : '', b.lembur ? b.lembur + ' lembur' : '', b.koreksi ? b.koreksi + ' koreksi' : ''].filter(Boolean).join(' · ') || 'tidak ada')));
-    alerts = l.alerts || [];
+  } else if (id === 'hq' && (boss || period.mode !== 'latest')) {
+    ({headline, metrics, alerts, extra} = groupPanelBody());
+  } else if (period.mode !== 'latest') {
+    ({headline, metrics, alerts, extra} = rangePanelBody(id, st));
   } else {
-    const sl = l.sales;
-    headline = !sl || sl.missing ? 'Belum ada laporan sales' : (sl.pct !== null ? 'Sales ' + sl.pct + '% dari target ' + dayLabel(sl.date) : 'Sales ' + dayLabel(sl.date) + ' ' + rpShort(sl.value));
-    metrics = outletMetrics(l, st.c);
-    alerts = l.alerts || [];
+    const l = loc(id);
+    if (!l) headline = T('Memuat data…', 'Loading…');
+    else if (l.status === 'err' || l.error) {
+      headline = T('Data lokasi ini gagal dibaca', 'Data for this location is unavailable right now');
+      alerts = boss ? [] : (l.alerts || []);
+    } else if (l.kind === 'build') {
+      headline = T('Target kontraktor selesai ', 'Fit-out due to finish ') + fmtDate(l.notes.openDate);
+      metrics = [metric(T('Menuju buka', 'Opening in'), T('H-' + l.notes.daysToOpen, l.notes.daysToOpen + ' days'), fmtDate(l.notes.openDate, true)),
+        metric('Sales', T('Belum ada', 'Not yet'), T('muncul otomatis saat laporan pertama masuk', 'appears automatically with the first daily report'))];
+      if (!boss) metrics.push(apprMetric(l.appr));
+      alerts = boss ? [] : (l.alerts || []);
+    } else if (id === 'ck') {
+      const d = l.dos || {}, p = l.prod || {}, inv = l.invoice || {};
+      headline = (d.today || 0) + T(' DO hari ini', ' deliveries today') + (p.count ? ' · ' + p.count + T(' item diproduksi ', ' items produced ') + dayLabel(p.date) : '');
+      metrics = [
+        metric(T('DO hari ini', 'Deliveries today'), String(d.today || 0), (d.stores || []).join(', ') || T('belum ada surat jalan', 'no delivery orders yet')),
+        metric(T('Hasil produksi ', 'Production ') + dayLabel(p.date), p.count ? p.count + ' item' + (boss && p.count !== 1 ? 's' : '') : '—', (p.top || []).map(t => t.name + ' ' + Number(t.qty).toLocaleString(loc_()) + ' ' + t.unit.toLowerCase()).join(', ')),
+        wasteMetric(l.waste)];
+      if (!boss) metrics.push(crewMetric(l.crew), apprMetric(l.appr));
+      metrics.push(metric(T('Invoice belum lunas', 'Unpaid invoices'), String(inv.open || 0), inv.open ? rp(inv.total) + (boss ? '' : ' · ' + d.unbilled + ' surat jalan belum ditagih') : (!boss && d.unbilled ? d.unbilled + ' surat jalan belum ditagih' : T('semua lunas', 'all paid'))));
+      alerts = boss ? latestFlags(id) : (l.alerts || []);
+    } else if (id === 'hq') {
+      headline = (l.appr ? l.appr.total : 0) + ' approval menunggu di SOYA SUKA';
+      metrics = [metric('Approval menunggu', String(l.appr ? l.appr.total : 0), 'MOI, BXC dan CK')]
+        .concat((l.breakdown || []).map(b => metric(b.name, String(b.total), [b.izin ? b.izin + ' izin' : '', b.lembur ? b.lembur + ' lembur' : '', b.koreksi ? b.koreksi + ' koreksi' : ''].filter(Boolean).join(' · ') || 'tidak ada')));
+      alerts = l.alerts || [];
+    } else {
+      const sl = l.sales;
+      headline = !sl || sl.missing ? T('Belum ada laporan sales', 'No sales report yet') : (sl.pct !== null && sl.pct !== undefined ? T('Sales ' + sl.pct + '% dari target ' + dayLabel(sl.date), 'Sales at ' + sl.pct + '% of target ' + dayLabel(sl.date)) : 'Sales ' + dayLabel(sl.date) + ' ' + rpShort(sl.value));
+      metrics = outletMetrics(l, st.c);
+      alerts = boss ? latestFlags(id) : (l.alerts || []);
+      if (sl) extra = mixBlock(mixOf(sl.mtd, sl.mtdCh), T('Channel mix · bulan ini', 'Channel mix · month to date'));
+    }
   }
+  if (!meta.static && !(id === 'hq' && (boss || period.mode !== 'latest'))) extra += id === 'hq' ? pnlOverview() : pnlBlock(meta.b);
+  if (meta.static && id === 'yonai') extra += pnlBlock('yonai');
 
-  const href = linkFor(id);
-  const app = href && meta.app
-    ? '<a class="btn primary" href="' + esc(href) + '"' + (href.startsWith('http') ? ' target="_blank" rel="noopener"' : '') + '>' + esc(meta.app) + ' <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>'
-    : '<span class="src">' + (id === 'yonai' ? 'App sedang dibangun' : 'Belum ada app untuk lokasi ini') + '</span>';
-  const kantor = id === 'hq' ? '<a class="btn" id="kantorPanel" href="' + KANTOR_URL + '" target="_blank" rel="noopener">Masuk kantor agent</a>' : '';
+  let foot = '';
+  if (!boss) {
+    const href = linkFor(id);
+    const app = href && meta.app
+      ? '<a class="btn primary" href="' + esc(href) + '"' + (href.startsWith('http') ? ' target="_blank" rel="noopener"' : '') + '>' + esc(meta.app) + ' <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>'
+      : '<span class="src">' + (id === 'yonai' ? 'App sedang dibangun' : 'Belum ada app untuk lokasi ini') + '</span>';
+    const kantor = id === 'hq' ? '<a class="btn" id="kantorPanel" href="' + KANTOR_URL + '" target="_blank" rel="noopener">Masuk kantor agent</a>' : '';
+    foot = '<div class="foot"><div class="src">Sumber data: ' + esc(meta.src) + '</div><div style="display:flex;gap:8px;flex-wrap:wrap">' + kantor + app + '</div></div>';
+  }
 
   $('#panel').innerHTML =
     '<div><div class="kind"><span class="chip" style="background:' + br.fill + ';border-color:' + br.edge + '"></span><span>' + esc(br.name + ' · ' + meta.kind) + '</span></div>' +
     '<h2>' + esc(meta.name) + '</h2>' +
     '<div class="headline"><span class="pill" style="background:' + st.bg + ';color:' + st.fg + '"><span class="dot" style="width:8px;height:8px;background:' + st.c + '"></span>' + esc(statusLabel(id)) + '</span><span>' + esc(headline) + '</span></div></div>' +
-    (metrics.length ? '<div class="metrics">' + metrics.join('') + '</div>' : '') +
-    '<div class="alerts"><h3 class="h3">Perlu perhatian</h3>' +
-    (alerts.length ? alerts.map(a => '<div class="al"><span class="dot" style="background:' + (a.lvl === 'warn' ? 'var(--warn)' : 'var(--info)') + '"></span><span>' + esc(a.text) + '</span></div>').join('') : '<div class="al" style="color:var(--muted)">Tidak ada alert.</div>') +
-    '</div><div class="foot"><div class="src">Sumber data: ' + esc(meta.src) + '</div><div style="display:flex;gap:8px;flex-wrap:wrap">' + kantor + app + '</div></div>';
+    (metrics.length ? '<div class="metrics">' + metrics.join('') + '</div>' : '') + extra +
+    '<div class="alerts"><h3 class="h3">' + T('Perlu perhatian', 'Worth a look') + '</h3>' +
+    (alerts.length ? alerts.map(a => '<div class="al"><span class="dot" style="background:' + (a.lvl === 'warn' ? 'var(--warn)' : 'var(--info)') + '"></span><span>' + esc(a.text) + '</span></div>').join('') : '<div class="al" style="color:var(--muted)">' + T('Tidak ada alert.', 'Nothing flagged.') + '</div>') +
+    '</div>' + foot;
 }
 
-/* ====== Render: list ====== */
+function rangePanelBody(id, st) {
+  if (!inRange()) return {headline: T('Memuat periode…', 'Loading period…'), metrics: [], alerts: [], extra: ''};
+  const l = range.locs[id];
+  if (!l) return {headline: T('Tidak ada data', 'No data'), metrics: [], alerts: [], extra: ''};
+  if (l.error || l.status === 'err') return {headline: T('Data lokasi ini gagal dibaca', 'Data for this location is unavailable right now'), metrics: [], alerts: isBoss() ? [] : rangeFlags(id), extra: ''};
+  if (l.kind === 'build') {
+    return {headline: T('Target kontraktor selesai ', 'Fit-out due to finish ') + fmtDate(l.notes.openDate), alerts: [], extra: '',
+      metrics: [metric(T('Menuju buka', 'Opening in'), T('H-' + l.notes.daysToOpen, l.notes.daysToOpen + ' days'), fmtDate(l.notes.openDate, true)),
+        metric('Sales', T('Belum ada', 'Not yet'), T('muncul otomatis saat laporan pertama masuk', 'appears automatically with the first daily report'))]};
+  }
+  if (l.kind === 'ck') {
+    const dos = l.do.reduce((a, b) => a + b, 0), w = l.w.reduce((a, b) => a + b, 0);
+    const g = l.prev && l.prev.do ? Math.round((dos - l.prev.do) / l.prev.do * 100) : null;
+    return {headline: dos + T(' DO di periode ini', ' deliveries in this period') + (g !== null ? ' · ' + signed(g) + T(' vs periode lalu', ' vs previous period') : ''),
+      metrics: [
+        metric(T('Total DO', 'Delivery orders'), String(dos), T('periode lalu ', 'previous period ') + (l.prev ? l.prev.do : 0)),
+        metric(T('Hari produksi', 'Production days'), String(l.prodDays), T('hari ada hasil produksi', 'days with production logged')),
+        metric(T('Invoice terbit', 'Invoiced'), rp(l.invoiced.total), l.invoiced.count + T(' invoice di periode ini', ' invoices in this period')),
+        metric(T('Invoice belum lunas (sekarang)', 'Unpaid invoices (now)'), String(l.unpaid.count), l.unpaid.count ? rp(l.unpaid.total) : T('semua lunas', 'all paid')),
+        metric('Wastage', rp(w), (l.wasteCount || 0) + T(' entri', ' entries'))],
+      alerts: [], extra: barChart(l.do, null, 'DO')};
+  }
+  const s = rangeStats(id);
+  const headline = !s.days ? T('Belum ada data sales di periode ini', 'No sales data in this period')
+    : (s.pct !== null ? T('Sales ' + s.pct + '% dari target', 'Sales at ' + s.pct + '% of target') : 'Sales ' + rpShort(s.sales)) + (s.growth !== null ? ' · ' + signed(s.growth) + T(' vs periode lalu', ' vs previous period') : '');
+  const metrics = [
+    metric(T('Sales periode ini', 'Sales this period'), rp(s.sales), s.target ? 'target ' + rp(s.target) + ' · ' + s.pct + '%' : T('target belum diisi', 'no target set'), s.target ? s.pct : null, st.c),
+    metric(T('vs periode lalu', 'vs previous period'), s.growth === null ? '—' : signed(s.growth), rp(s.prev) + ' · ' + fmtRange(range.prevFrom, range.prevTo) + (s.prev && s.prevDays < s.days ? T(' · hanya ' + s.prevDays + ' hari ada data', ' · only ' + s.prevDays + ' days of data') : '')),
+    metric(T('Rata-rata per hari', 'Average per day'), rp(s.avg), s.days + T(' dari ', ' of ') + s.n + T(' hari ada laporan', ' days reported')),
+    metric(T('Hari terbaik', 'Best day'), s.best ? rp(s.best.v) : '—', s.best ? dow(s.best.d) + ', ' + fmtDate(s.best.d) : ''),
+    metric(T('Hari terendah', 'Lowest day'), s.worst ? rp(s.worst.v) : '—', s.worst ? dow(s.worst.d) + ', ' + fmtDate(s.worst.d) : '')
+  ];
+  if (s.bills !== null) metrics.push(metric(T('Jumlah bill', 'Bills'), s.bills.toLocaleString(loc_()), s.avgTicket ? T('rata-rata ', 'avg ticket ') + rp(s.avgTicket) : ''));
+  metrics.push(metric('Wastage', rp(s.waste), s.wastePct !== null ? s.wastePct + T('% dari sales', '% of sales') : ''));
+  return {headline, metrics, alerts: rangeFlags(id), extra: barChart(l.s.slice(0, range.dates.length), l.t, '') + mixBlock(mixOf(s.sales, l.ch), T('Channel mix · periode ini', 'Channel mix · this period'))};
+}
+
+/* ====== Render: daftar & tabel ====== */
 function renderList() {
-  $('#list').innerHTML = '<h3 class="h3" style="margin:4px 8px 0">Semua lokasi</h3>' + Object.keys(ORDER).map(b => {
+  $('#listTitle').textContent = T('Semua lokasi', 'All locations');
+  $('#listBody').innerHTML = Object.keys(ORDER).map(b => {
     const br = BRANDS[b];
     return '<div class="grp"><div class="gh"><span class="chip" style="background:' + br.fill + ';border-color:' + br.edge + '"></span>' + esc(br.name) + '</div>' +
-      ORDER[b].map(id => '<button type="button" class="loc" data-pick="' + id + '" aria-current="' + (id === selected) + '"><span class="dot" style="width:10px;height:10px;background:' + SOLID[statusOf(id)] + '"></span><span class="n">' + esc(LOCS[id].short) + '</span><span class="st">' + esc(statusLabel(id)) + '</span></button>').join('') + '</div>';
+      ORDER[b].map(id => '<button type="button" class="loc" data-pick="' + id + '" aria-current="' + (id === selected) + '"><span class="dot" style="width:10px;height:10px;background:' + SOLID[statusOf(id)] + '"></span><span class="n">' + esc(M(id).short) + '</span><span class="st">' + esc(statusLabel(id)) + '</span></button>').join('') + '</div>';
   }).join('');
+}
+function renderTable() {
+  const ok = inRange(), latest = period.mode === 'latest';
+  const box = $('#tableCard');
+  if ((!latest && !ok) || (latest && !data)) { box.hidden = true; return; }
+  box.hidden = false;
+  const pctCell = p => p === null || p === undefined ? '<td class="num muted">—</td>' : '<td class="num"><span class="dot" style="background:' + (p < SALES_WARN ? 'var(--warn)' : 'var(--ok)') + '"></span> ' + p + '%</td>';
+  const gCell = g => g === null || g === undefined ? '<td class="num muted">—</td>' : '<td class="num ' + (g < 0 ? 'down' : 'up') + '">' + signed(g) + '</td>';
+  const oCell = m => !m ? '<td class="num muted">—</td>' : '<td class="num">' + m.online + '%</td>';
+  const wCell = w => w === null || w === undefined ? '<td class="num muted">—</td>' : '<td class="num' + (w > WASTE_WARN ? ' down' : '') + '">' + w + '%</td>';
+  let head, rows = [], total;
+  if (ok) {
+    head = [T('Outlet', 'Outlet'), 'Sales', 'Target', T('Capaian', 'Achieved'), T('vs lalu', 'vs prev.'), T('Rata-rata/hari', 'Avg / day'), T('Hari lapor', 'Days reported'), 'Online', 'Wastage'];
+    OUTLETS.forEach(id => {
+      const l = range.locs[id];
+      const name = '<td><span class="chip" style="background:' + BRANDS[LOCS[id].b].fill + ';border-color:' + BRANDS[LOCS[id].b].edge + '"></span> ' + esc(M(id).short) + '</td>';
+      if (!l || l.error || l.status === 'err') { rows.push('<tr data-pick="' + id + '">' + name + '<td class="muted" colspan="8">' + T('data gagal dibaca', 'data unavailable') + '</td></tr>'); return; }
+      if (l.kind === 'build') { rows.push('<tr data-pick="' + id + '">' + name + '<td class="muted" colspan="8">' + T('buka ', 'opens ') + fmtDate(l.notes.openDate, true) + '</td></tr>'); return; }
+      const s = rangeStats(id);
+      if (!s.days) { rows.push('<tr data-pick="' + id + '">' + name + '<td class="down" colspan="8">' + T('tidak ada laporan sales di periode ini', 'no sales reported in this period') + '</td></tr>'); return; }
+      rows.push('<tr data-pick="' + id + '">' + name + '<td class="num">' + rp(s.sales) + '</td><td class="num">' + (s.target ? rp(s.target) : '—') + '</td>' + pctCell(s.pct) + gCell(s.growth) +
+        '<td class="num">' + (s.days ? rp(s.avg) : '—') + '</td><td class="num' + (s.missing.length ? ' down' : '') + '">' + s.days + ' / ' + s.n + '</td>' + oCell(mixOf(s.sales, l.ch)) + wCell(s.wastePct) + '</tr>');
+    });
+    const g = groupRange(OUTLETS);
+    total = '<tr class="tot"><td>' + T('Total', 'Total') + '</td><td class="num">' + rp(g.sales) + '</td><td class="num">' + (g.target ? rp(g.target) : '—') + '</td>' + pctCell(g.pct) + gCell(g.growth) + '<td></td><td></td><td></td><td></td></tr>';
+  } else {
+    head = [T('Outlet', 'Outlet'), T('Sales terakhir', 'Latest sales'), T('Tanggal', 'Date'), T('Capaian', 'Achieved'), T('Bulan ini (MTD)', 'Month to date'), 'Online (MTD)', 'Wastage'];
+    OUTLETS.forEach(id => {
+      const l = loc(id);
+      const name = '<td><span class="chip" style="background:' + BRANDS[LOCS[id].b].fill + ';border-color:' + BRANDS[LOCS[id].b].edge + '"></span> ' + esc(M(id).short) + '</td>';
+      if (!l || l.error || l.status === 'err') { rows.push('<tr data-pick="' + id + '">' + name + '<td class="muted" colspan="6">' + T('data gagal dibaca', 'data unavailable') + '</td></tr>'); return; }
+      if (l.kind === 'build') { rows.push('<tr data-pick="' + id + '">' + name + '<td class="muted" colspan="6">' + T('buka ', 'opens ') + fmtDate(l.notes.openDate, true) + '</td></tr>'); return; }
+      const s = l.sales || {};
+      rows.push('<tr data-pick="' + id + '">' + name + '<td class="num">' + (s.missing ? '<span class="down">' + T('belum lapor', 'not reported') + '</span>' : rp(s.value)) + '</td><td>' + esc(s.missing ? '—' : dayLabel(s.date)) + '</td>' +
+        pctCell(s.missing ? null : s.pct) + '<td class="num">' + rp(s.mtd) + '</td>' + oCell(mixOf(s.mtd, s.mtdCh)) + wCell(l.waste && l.waste.pctOfSales !== undefined ? l.waste.pctOfSales : null) + '</tr>');
+    });
+    const g = groupLatest(OUTLETS);
+    total = '<tr class="tot"><td>Total</td><td class="num">' + rp(g.sales) + '</td><td></td>' + pctCell(g.pct) + '<td class="num">' + rp(g.mtd) + '</td><td></td><td></td></tr>';
+  }
+  $('#tableTitle').textContent = ok ? T('Ringkasan outlet · ', 'Outlet summary · ') + fmtRange(range.from, range.to) : T('Ringkasan outlet · laporan terakhir', 'Outlet summary · latest daily report');
+  $('#table').innerHTML = '<thead><tr>' + head.map((h, i) => '<th' + (i > 0 && !(latest && i === 2) ? ' class="num"' : '') + '>' + esc(h) + '</th>').join('') + '</tr></thead><tbody>' + rows.join('') + total + '</tbody>';
 }
 
 function renderAll() {
-  if (data) $('#stamp').textContent = stampText();
-  renderKpis(); renderMap(); renderPanel(); renderList();
+  applyLang();
+  renderPeriodBar();
+  $('#stamp').textContent = stampText();
+  renderKpis(); renderMap(); renderPanel(); renderList(); renderTable();
 }
 
 function pick(id) { if (!LOCS[id]) return; selected = id; renderMap(); renderPanel(); renderList(); }
-$('#list').addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (b) pick(b.dataset.pick); });
+$('#listBody').addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (b) pick(b.dataset.pick); });
+$('#table').addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (b) { pick(b.dataset.pick); if (window.innerWidth < 900) $('#panel').scrollIntoView({behavior: 'smooth', block: 'start'}); } });
 $('#map').addEventListener('click', e => { const g = e.target.closest('[data-key]'); if (g) pick(g.dataset.key); });
 
 boot();
