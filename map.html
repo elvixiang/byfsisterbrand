@@ -859,7 +859,20 @@ async function boot() {
   timer = setInterval(() => { if (document.visibilityState === 'visible') load(false); }, REFRESH_MS);
 }
 
+/* Snapshot terakhir di browser: peta langsung tampil, angka baru menyusul di belakang. */
+const SNAP = () => 'opsmap.snap.' + role;
+function snapGet(k) { try { const a = JSON.parse(lsGet(SNAP()) || '{}'); return a[k] ? a[k].v : null; } catch (e) { return null; } }
+function snapPut(k, v) {
+  try {
+    const a = JSON.parse(lsGet(SNAP()) || '{}');
+    a[k] = {at: Date.now(), v};
+    Object.keys(a).filter(x => x.startsWith('r:')).sort((x, y) => a[y].at - a[x].at).slice(4).forEach(x => { delete a[x]; });
+    lsSet(SNAP(), JSON.stringify(a));
+  } catch (e) {}
+}
+
 function signOut(msg) {
+  lsDel(SNAP());
   if (role === 'boss') lsDel(LS.boss); else lsDel(LS.token);
   token = null; data = null; range = null; pnl = null; preview = false; role = 'admin';
   closePnl();
@@ -898,7 +911,7 @@ $('#logoutBtn').addEventListener('click', () => {
   if (role === 'boss') api('mapview', {logout: true}, true).catch(() => {}); else api('logout', {}, true).catch(() => {});
   signOut('');
 });
-$('#refreshBtn').addEventListener('click', () => load(true));
+$('#refreshBtn').addEventListener('click', () => { load(true); if (role === 'admin' && !preview) loadPnl(true); });
 $('#printBtn').addEventListener('click', () => window.print());
 $('#previewBtn').addEventListener('click', () => { preview = !preview; renderAll(); });
 document.addEventListener('visibilitychange', () => {
@@ -949,16 +962,20 @@ async function load(force) {
   if (period.mode !== 'latest' && !want) return;
   loading = true;
   $('#refreshBtn').disabled = true;
-  if (!want && !data) $('#stamp').textContent = T('Memuat data live… (bisa 10–20 detik)', 'Loading live data… (10–20 seconds)');
-  if (want) $('#stamp').textContent = T('Memuat periode ', 'Loading ') + fmtRange(want.from, want.to) + '…';
+  const key = want ? want.from + '_' + want.to : '';
+  if (!want && !data) data = snapGet('map');
+  if (want && !inRange()) { const sn = snapGet('r:' + key); if (sn) { range = sn; range.key = key; } }
+  if (!pnl) { pnl = snapGet('pnl') || {loading: true, brands: {}}; loadPnl(false); }
+  renderAll();
   try {
     if (!want) {
       const out = role === 'boss' ? await api('mapview', {force: !!force}) : await api('map', {force: !!force});
       data = out.map;
-      if (!pnl) { pnl = {loading: true, brands: {}}; loadPnl(); }
+      snapPut('map', data);
     } else {
       const out = await api('mapview', {from: want.from, to: want.to, force: !!force});
-      range = out.range; range.key = want.from + '_' + want.to;
+      range = out.range; range.key = key;
+      snapPut('r:' + key, range);
     }
     $('#banner').hidden = true;
   } catch (err) {
@@ -974,10 +991,11 @@ async function load(force) {
   }
 }
 function stampText() {
-  if (inRange()) return T('Periode ', 'Period ') + fmtRange(range.from, range.to) + ' · ' + T('update ', 'updated ') + range.asOf.slice(11, 16);
-  if (rangeWaiting()) return T('Memuat periode…', 'Loading period…');
-  if (!data) return T('Memuat data…', 'Loading…');
-  return T('Update ', 'Updated ') + data.asOf.slice(11, 16) + T(' · otomatis tiap 2 menit', ' · refreshes every 2 minutes');
+  const busy = loading ? T(' · memperbarui…', ' · refreshing…') : '';
+  if (inRange()) return T('Periode ', 'Period ') + fmtRange(range.from, range.to) + ' · ' + T('update ', 'updated ') + range.asOf.slice(11, 16) + busy;
+  if (rangeWaiting()) return T('Memuat periode… (pertama kali bisa ±20 detik)', 'Loading period… (first time can take ~20 seconds)');
+  if (!data) return T('Memuat data… (pertama kali bisa ±20 detik)', 'Loading… (first load can take ~20 seconds)');
+  return T('Update ', 'Updated ') + data.asOf.slice(11, 16) + (busy || T(' · otomatis tiap 10 menit', ' · updates every 10 minutes'));
 }
 
 /* ====== Hitungan periode ====== */
@@ -1433,9 +1451,9 @@ function pnlOverview() {
   return '<div class="pnl"><h3 class="h3">' + T('P&amp;L terbaru per brand', 'Latest P&amp;L by brand') + '</h3><div class="pchips">' +
     rows.map(x => '<button type="button" class="pchip" data-pnl="' + esc(x.f.id) + '">' + esc(PNL_BRANDS[x.b]) + ' · ' + esc(fmtMonth(x.f.ym)) + (x.f.draft ? ' <em>draft</em>' : '') + '</button>').join('') + '</div></div>';
 }
-async function loadPnl() {
-  try { const out = await api('mapview', {pnl: 'list'}, true); pnl = out.pnl || {brands: {}}; }
-  catch (e) { pnl = {error: e.code || 'ERR', brands: {}}; }
+async function loadPnl(force) {
+  try { const out = await api('mapview', {pnl: 'list', force: !!force}, true); pnl = out.pnl || {brands: {}}; snapPut('pnl', pnl); }
+  catch (e) { if (!pnl || pnl.loading) pnl = {error: e.code || 'ERR', brands: {}}; }
   if (token) { renderKpis(); renderPanel(); }
 }
 let pdfUrl = null;
