@@ -764,7 +764,7 @@ let range = null;         // data periode
 let rangeOk = true;       // false kalau Code.gs belum punya action mapview
 let period = {mode: 'latest', month: '', from: '', to: ''};
 let selected = 'moi';
-let timer = null, loading = false, pending = false;
+let timer = null;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
@@ -813,7 +813,7 @@ function dayLabel(d) {
 function addDays(d, n) { const x = new Date(d + 'T00:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); }
 function lastDay(ym) { const [y, m] = ym.split('-').map(Number); return new Date(Date.UTC(y, m, 0)).getUTCDate(); }
 function todayJkt() {
-  if (data && data.today) return data.today;
+  if (data && data.today && data.builtAt && Date.now() - data.builtAt < 6 * 3600 * 1000) return data.today;
   try { return new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Jakarta'}).format(new Date()); } catch (e) { return new Date().toISOString().slice(0, 10); }
 }
 function M(id) { const m = LOCS[id]; return isBoss() && m.en ? Object.assign({}, m, m.en) : m; }
@@ -874,7 +874,8 @@ function snapPut(k, v) {
 function signOut(msg) {
   lsDel(SNAP());
   if (role === 'boss') lsDel(LS.boss); else lsDel(LS.token);
-  token = null; data = null; range = null; pnl = null; preview = false; role = 'admin';
+  token = null; data = null; range = null; pnl = null; preview = false; role = 'admin'; prefetchedAt = 0;
+  Object.keys(rangeMem).forEach(k => { delete rangeMem[k]; });
   closePnl();
   period = {mode: 'latest', month: '', from: '', to: ''};
   clearInterval(timer);
@@ -943,6 +944,7 @@ function onPeriod() {
   const t = todayJkt();
   if (sel === 'month' && !period.month) period.month = t.slice(0, 7);
   if (sel === 'custom' && !period.from) { period.from = t.slice(0, 8) + '01'; period.to = t; }
+  adoptRange();
   renderAll();
   if (sel !== 'custom') load(false);
 }
@@ -956,27 +958,47 @@ $('#pApply').addEventListener('click', () => {
 
 /* ====== Load ====== */
 function showBanner(m) { $('#banner').textContent = m; $('#banner').hidden = false; }
+/* Data per periode disimpan di memori; permintaan yang sama tidak dikirim dua kali.
+   Periode tidak menunggu "laporan terakhir" selesai (dan sebaliknya). */
+const rangeMem = {}, inflight = {}, busyKeys = {};
+const FRESH_MS = 3 * 60 * 1000;
+function fetchLatest(force) {
+  if (inflight.latest && !force) return inflight.latest;
+  const p = (role === 'boss' ? api('mapview', {force: !!force}) : api('map', {force: !!force}))
+    .then(out => { data = out.map; snapPut('map', data); return data; })
+    .finally(() => { if (inflight.latest === p) delete inflight.latest; });
+  inflight.latest = p;
+  return p;
+}
+function fetchRange(from, to, force) {
+  const key = from + '_' + to;
+  if (inflight[key] && !force) return inflight[key];
+  const p = api('mapview', {from, to, force: !!force})
+    .then(out => { const r = out.range; r.key = key; r.fetchedAt = Date.now(); rangeMem[key] = r; snapPut('r:' + key, r); return r; })
+    .finally(() => { if (inflight[key] === p) delete inflight[key]; });
+  inflight[key] = p;
+  return p;
+}
+function curKey() { return period.mode === 'latest' ? 'latest' : periodKey(); }
+function adoptRange() {
+  const key = periodKey();
+  if (!key || (range && range.key === key)) return;
+  const mem = rangeMem[key] || snapGet('r:' + key);
+  if (mem) { range = mem; range.key = key; }
+}
 async function load(force) {
-  if (loading) { pending = true; return; }
   const want = period.mode === 'latest' ? null : periodDates();
   if (period.mode !== 'latest' && !want) return;
-  loading = true;
-  $('#refreshBtn').disabled = true;
-  const key = want ? want.from + '_' + want.to : '';
+  const key = want ? want.from + '_' + want.to : 'latest';
   if (!want && !data) data = snapGet('map');
-  if (want && !inRange()) { const sn = snapGet('r:' + key); if (sn) { range = sn; range.key = key; } }
+  if (want) adoptRange();
   if (!pnl) { pnl = snapGet('pnl') || {loading: true, brands: {}}; loadPnl(false); }
+  if (want && !force && rangeMem[key] && Date.now() - rangeMem[key].fetchedAt < FRESH_MS) { renderAll(); return; }
+  busyKeys[key] = (busyKeys[key] || 0) + 1;
   renderAll();
   try {
-    if (!want) {
-      const out = role === 'boss' ? await api('mapview', {force: !!force}) : await api('map', {force: !!force});
-      data = out.map;
-      snapPut('map', data);
-    } else {
-      const out = await api('mapview', {from: want.from, to: want.to, force: !!force});
-      range = out.range; range.key = key;
-      snapPut('r:' + key, range);
-    }
+    if (!want) { await fetchLatest(force); prefetch(); }
+    else { const r = await fetchRange(want.from, want.to, force); if (periodKey() === key) range = r; }
     $('#banner').hidden = true;
   } catch (err) {
     if (err.code === 'BAD_ACTION' && want) {
@@ -984,14 +1006,28 @@ async function load(force) {
       showBanner('Pilih periode belum aktif: tambahkan 1 baris mapview di Code.gs lalu deploy versi baru (lihat langkah pasang).');
     } else if (!err.auth) showBanner(err.message);
   } finally {
-    loading = false;
-    $('#refreshBtn').disabled = false;
+    if (!--busyKeys[key]) delete busyKeys[key];
     if (token) renderAll();
-    if (pending) { pending = false; load(false); }
+  }
+}
+/** Diam-diam siapkan Bulan ini, 7 hari, Bulan lalu supaya ganti periode langsung tampil. */
+let prefetchedAt = 0;
+async function prefetch() {
+  if (!rangeOk || !token || Date.now() - prefetchedAt < 10 * 60 * 1000) return;
+  prefetchedAt = Date.now();
+  const saved = period;
+  const list = ['mtd', '7d', 'lastmonth'].map(mode => { period = {mode, month: '', from: '', to: ''}; const d = periodDates(); return d; });
+  period = saved;
+  for (const d of list) {
+    if (!token || !d) return;
+    const key = d.from + '_' + d.to;
+    if (rangeMem[key] && Date.now() - rangeMem[key].fetchedAt < FRESH_MS) continue;
+    try { await fetchRange(d.from, d.to, false); } catch (e) { return; }
+    if (periodKey() === key) { range = rangeMem[key]; renderAll(); }
   }
 }
 function stampText() {
-  const busy = loading ? T(' · memperbarui…', ' · refreshing…') : '';
+  const busy = busyKeys[curKey()] ? T(' · memperbarui…', ' · refreshing…') : '';
   if (inRange()) return T('Periode ', 'Period ') + fmtRange(range.from, range.to) + ' · ' + T('update ', 'updated ') + range.asOf.slice(11, 16) + busy;
   if (rangeWaiting()) return T('Memuat periode… (pertama kali bisa ±20 detik)', 'Loading period… (first time can take ~20 seconds)');
   if (!data) return T('Memuat data… (pertama kali bisa ±20 detik)', 'Loading… (first load can take ~20 seconds)');
@@ -1653,6 +1689,7 @@ function renderTable() {
 }
 
 function renderAll() {
+  $('#refreshBtn').disabled = !!busyKeys[curKey()];
   applyLang();
   renderPeriodBar();
   $('#stamp').textContent = stampText();
